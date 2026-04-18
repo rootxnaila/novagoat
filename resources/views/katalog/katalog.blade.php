@@ -1,48 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Kambing</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
+@extends('layouts.app')
+
+@section('content')
+<style>
     .card-img-top-equal {
         height: 250px; 
         object-fit: cover; 
     }
 </style>
-</head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="mb-4">Ensiklopedia Kambing</h2>
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col">
-                <div class="card h-100">
-                    <img src="https://www.etawajaya.com/wp-content/uploads/2022/06/kambing-etawa-indonesia.jpg" class="card-img-top-equal" alt="Foto Kambing Ras Etawa">
-                    <div class="card-body">
-                        <h5 class="card-title">Si Jalu</h5>
-                        <p class="card-text text-muted">Ras: Ettawa</p>
-                        <p class="card-text"><strong>Berat:</strong> 50-75 kg</p>
-                    </div>
-                    <div class="card-footer text-center">
-                        <button class="btn btn-outline-primary btn-sm">Detail</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card h-100">
-                    <img src="https://trubus.id/wp-content/uploads/2022/09/Enam-Keunggulan-Kambing-Boerka-696x516.jpg" class="card-img-top-equal" alt="Foto Kambing Ras boer">
-                    <div class="card-body">
-                        <h5 class="card-title">Si Putih</h5>
-                        <p class="card-text text-muted">Ras: Boer</p>
-                        <p class="card-text"><strong>Berat:</strong> 50-80 kg</p>
-                    </div>
-                    <div class="card-footer text-center">
-                        <button class="btn btn-outline-primary btn-sm">Detail</button>
-                    </div>
-                </div>
-            </div>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Ensiklopedia Kambing</h2>
+    
+    <div class="row row-cols-1 row-cols-md-3 g-4" id="katalog-container">
+        <div class="col-12" id="loading-text">
+            <p class="text-muted">Sedang memuat data kambing dari kandang...</p>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const container = document.getElementById('katalog-container');
+        const loading = document.getElementById('loading-text');
+
+        fetch('/api/kambing')
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success') {
+                    if(loading) loading.remove();
+                    
+                    container.innerHTML = '';
+
+                    result.data.forEach(kambing => {
+                        
+                        let gambarUrl = kambing.gambar.startsWith('http') 
+                            ? kambing.gambar 
+                            : 'https://trubus.id/wp-content/uploads/2022/09/Enam-Keunggulan-Kambing-Boerka-696x516.jpg';
+
+                        let cardHTML = `
+                            <div class="col">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="${gambarUrl}" class="card-img-top-equal" alt="Foto ${kambing.nama}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${kambing.nama}</h5>
+                                        <p class="card-text text-muted mb-1">Ras: ${kambing.jenis}</p>
+                                        <p class="card-text mb-1"><strong>Berat Awal:</strong> ${kambing.berat_awal} kg</p>
+                                        <p class="card-text"><strong>Status:</strong> ${kambing.status_kondisi}</p>
+                                    </div>
+                                    <div class="card-footer text-center bg-white border-top-0 pb-3">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="alert('Nanti ini buka detail ID: ${kambing.id_kambing}')">Detail</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        container.innerHTML += cardHTML;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Waduh, ada error ambil data:', error);
+                container.innerHTML = '<p class="text-danger">Gagal memuat data kambing. Cek koneksi API.</p>';
+            });
+    });
+</script>
+@endsection

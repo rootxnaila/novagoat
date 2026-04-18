@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - NovaGoat</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-</head>
-<body class="bg-light">
+@extends('layouts.app')
+@section('content')
     <div class="container mt-5">
         <h2 class="mb-4">Dashboard Admin Kambing</h2>
         <div class="row">
+
             <div class="col-md-4">
                 <div class="card text-white bg-primary mb-3">
                     <div class="card-body text-center">
@@ -19,6 +12,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-4">
                 <div class="card text-white bg-danger mb-3">
                     <div class="card-body text-center">
@@ -26,6 +20,7 @@
                         <p class="display-4">3</p>
                     </div>
                 </div>
+                
             </div>
             <div class="col-md-4">
                 <div class="card text-white bg-success mb-3">
@@ -36,6 +31,20 @@
                 </div>
             </div>
         </div>
+
     </div>
-</body>
-</html>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/api/dashboard/stats') //url api
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success') {
+                    document.getElementById('total-kambing').innerText = result.data.total_kambing;
+                    document.getElementById('kambing-sakit').innerText = result.data.kambing_sakit;
+                    document.getElementById('jadwal-suntik').innerText = result.data.jadwal_hari_ini;
+                }
+            })
+            .catch(error => console.error('Waduh, ada error ambil data:', error));
+    });
+</script>
+@endsection

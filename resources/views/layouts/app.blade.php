@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kambing Super Pak Nova</title>
+    <title>Kambing Super Pak Tarno</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Poppins', sans-serif; background: #000; color: white; overflow: hidden; }
@@ -95,39 +95,39 @@
 </head>
 <body>
 
-    @include('layouts.navbar')
-
-    @yield('content')
-
-    <script>
-        function moveActive(element) {
-            const links = document.querySelectorAll('.nav-links a');
-            const indicator = document.querySelector('.nav-indicator');
-            links.forEach(link => link.classList.remove('active'));
-            element.classList.add('active');
-            
-            indicator.style.width = element.offsetWidth + 'px';
-            indicator.style.left = element.offsetLeft + 'px';
-            indicator.style.height = element.offsetHeight + 'px';
-        }
-
-        function toggleSearch() {
-            const wrapper = document.getElementById('searchWrapper');
-            const input = document.getElementById('searchInput');
-            
-            wrapper.classList.toggle('active');
-            
-            if (wrapper.classList.contains('active')) {
-                setTimeout(() => { input.focus(); }, 300);
-            } else {
-                input.value = '';
+        @include('layouts.navbar')
+        <main style="padding-top: 100px; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+        @yield('content')
+    </main>
+        <script>
+            function moveActive(element) {
+                const links = document.querySelectorAll('.nav-links a');
+                const indicator = document.querySelector('.nav-indicator');
+                links.forEach(link => link.classList.remove('active'));
+                element.classList.add('active');
+                
+                indicator.style.width = element.offsetWidth + 'px';
+                indicator.style.left = element.offsetLeft + 'px';
+                indicator.style.height = element.offsetHeight + 'px';
             }
-        }
 
-        window.onload = function() {
-            const dash = document.querySelector('.nav-links a');
-            if(dash) moveActive(dash);
-        };
-    </script>
-</body>
-</html>
+            function toggleSearch() {
+                const wrapper = document.getElementById('searchWrapper');
+                const input = document.getElementById('searchInput');
+                
+                wrapper.classList.toggle('active');
+                
+                if (wrapper.classList.contains('active')) {
+                    setTimeout(() => { input.focus(); }, 300);
+                } else {
+                    input.value = '';
+                }
+            }
+
+            window.onload = function() {
+                const dash = document.querySelector('.nav-links a');
+                if(dash) moveActive(dash);
+            };
+        </script>
+    </body>
+    </html>

@@ -45,7 +45,7 @@ class KambingController extends Controller
             'status_kondisi' => 'required|string',
             'gambar' => 'nullable|string'
         ]);
-    // trus create data baru ke db, pake default image fallback usernya ga ngirim url gambar
+        // trus create data baru ke db, pake default image fallback usernya ga ngirim url gambar
         $kambingBaru = Kambing::create([
             'nama' => $request->nama,
             'jenis' => $request->jenis,
@@ -59,6 +59,18 @@ class KambingController extends Controller
             'message' => 'data kambing berhasil ditambahkan!',
             'data' => $kambingBaru
         ], 201);
+    }
+    // fetch riwayat berat buat grafik chart.js di frontend
+    public function grafikBerat($id)
+    {
+        $riwayat = \App\Models\LogBerat::where('id_kambing', $id)
+            ->orderBy('tanggal_timbang', 'asc') 
+            ->get(['berat_sekarang', 'tanggal_timbang']); // ambil berat_sekarang dan tanggalnya aja
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $riwayat
+        ]);
     }
 }
 ?>

@@ -8,5 +8,11 @@ class Kambing extends Model
 {
     protected $table = 'kambing'; 
     protected $primaryKey = 'id_kambing';
-    public $timestamps = false;
+    protected $fillable = [
+        'nama',
+        'jenis',
+        'berat_awal',
+        'status_kondisi',
+        'gambar'
+    ];
 }

@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $kambingSakit = Kambing::where('status_kondisi', '!=', 'Sehat')->count();
         $hariIni = Carbon::today()->toDateString();
         $jadwalHariIni = JadwalMedis::whereDate('tanggal_rencana', $hariIni)
-                                    ->where('status_pelaksanaan', 'Belum')
+                                    ->where('status', 'Belum')
                                     ->count();
 
         return response()->json([

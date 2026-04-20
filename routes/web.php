@@ -29,3 +29,8 @@ Route::get('/admin/medis-data', function () {
 
 // Route PENTING: Untuk simpan data dari Modal ke Database
 Route::post('/admin/medis/store', [MedisController::class, 'store'])->name('admin.medis.store');
+
+// Pintu masuk ke halaman login
+Route::get('/login', function () {
+    return view('auth.login');
+});

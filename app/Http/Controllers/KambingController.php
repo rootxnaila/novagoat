@@ -63,14 +63,33 @@ class KambingController extends Controller
     // fetch riwayat berat buat grafik chart.js di frontend
     public function grafikBerat($id)
     {
-        $riwayat = \App\Models\LogBerat::where('id_kambing', $id)
-            ->orderBy('tanggal_timbang', 'asc') 
-            ->get(['berat_sekarang', 'tanggal_timbang']); // ambil berat_sekarang dan tanggalnya aja
+        try {
+            // Cek apakah kambing dengan ID ini ada
+            $kambing = Kambing::find($id);
+            if (!$kambing) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Kambing tidak ditemukan',
+                    'data' => []
+                ], 404);
+            }
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $riwayat
-        ]);
+            // Ambil data log berat untuk kambing ini
+            $riwayat = \App\Models\LogBerat::where('id_kambing', $id)
+                ->orderBy('tanggal_timbang', 'asc') 
+                ->get(['berat_sekarang', 'tanggal_timbang']);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $riwayat
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
 }
 ?>

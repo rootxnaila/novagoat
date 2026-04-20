@@ -11,7 +11,12 @@
             <h2 class="text-white fw-bold">Jadwal Medis & Vaksin</h2>
             <p class="text-secondary mb-0 font-monospace" style="font-size: 0.85rem;">Monitoring kesehatan dan jadwal imunisasi ternak.</p>
         </div>
-        <button class="btn btn-info btn-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahJadwal">+ TAMBAH JADWAL</button>
+        <div class="d-flex align-items-center gap-2">
+            <select id="kambingSelect" class="form-select form-select-sm bg-black text-white border-secondary" style="width: 220px; min-width: 180px;">
+                <option value="" disabled selected>Pilih Kambing...</option>
+            </select>
+            <button class="btn btn-info btn-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahJadwal">+ TAMBAH JADWAL</button>
+        </div>
     </div>
 
     {{-- Stats Cards --}}
@@ -44,7 +49,7 @@
         <div class="col-lg-8">
             <div class="card bg-dark border-secondary shadow" style="border-radius: 20px; overflow: hidden;">
                 <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Kesehatan</h6>
+                    <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Berat Badan Ternak</h6>
                     <div class="d-flex align-items-center bg-black px-3 py-1 rounded-pill" style="border: 1px solid #333;">
                         <div style="width: 10px; height: 10px; background: #00fbff; border-radius: 2px; margin-right: 8px;"></div>
                         <span class="text-white" style="font-size: 10px;">BERAT BADAN (KG)</span>
@@ -119,51 +124,143 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('medisChart').getContext('2d');
-        const medisChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Berat Badan',
-                    data: [],
-                    borderColor: '#00fbff',
-                    backgroundColor: 'rgba(0, 251, 255, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointRadius: 5,
-                    pointBackgroundColor: '#00fbff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: '#222' }, ticks: { color: '#888' } },
-                    x: { grid: { display: false }, ticks: { color: '#888' } }
-                }
+        let medisChart = null;
+        const kambingSelect = document.getElementById('kambingSelect');
+
+        const initChart = () => {
+            if (medisChart) {
+                medisChart.destroy();
             }
-        });
 
-        fetch('/admin/medis-data')
-            .then(res => res.json())
-            .then(data => {
-                if (data.length > 0) {
-                    medisChart.data.labels = data.map(item => {
-                        const d = new Date(item.tanggal);
-                        return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
-                    });
-                    medisChart.data.datasets[0].data = data.map(item => item.berat);
-                    medisChart.update();
-
-                    const stats = document.querySelectorAll('.row.g-3.mb-4 h3');
-                    stats[0].innerText = data.length;
-                    stats[1].innerText = data[data.length - 1].berat + ' kg';
-                    const avg = data.reduce((sum, item) => sum + parseFloat(item.berat), 0) / data.length;
-                    stats[2].innerText = avg.toFixed(1) + ' kg';
+            medisChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Berat Badan (Kg)',
+                        data: [],
+                        borderColor: '#00fbff',
+                        backgroundColor: 'rgba(0, 251, 255, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#00fbff',
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)', callback: (v) => v + ' kg' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: 'rgba(255, 255, 255, 0.7)' }
+                        }
+                    }
                 }
             });
+        };
+
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' });
+        };
+
+        const updateSummary = (data) => {
+            const stats = document.querySelectorAll('.row.g-3.mb-4 h3');
+            if (stats.length >= 3) {
+                stats[0].innerText = data.length;
+                stats[1].innerText = data.length ? parseFloat(data[data.length - 1].berat_sekarang).toFixed(1) + ' kg' : '- kg';
+                const avg = data.length ? (data.reduce((sum, item) => sum + parseFloat(item.berat_sekarang), 0) / data.length).toFixed(1) : '0';
+                stats[2].innerText = avg + ' kg';
+            }
+        };
+
+        const loadChart = (id) => {
+            if (!id) {
+                initChart();
+                updateSummary([]);
+                return;
+            }
+
+            fetch(`/api/grafik-berat/${id}`)
+                .then(res => res.json())
+                .then(response => {
+                    const dataApi = response.data || [];
+
+                    if (!Array.isArray(dataApi) || dataApi.length === 0) {
+                        initChart();
+                        updateSummary([]);
+                        return;
+                    }
+
+                    const labelsX = dataApi.map(item => formatDate(item.tanggal_timbang));
+                    const dataY = dataApi.map(item => parseFloat(item.berat_sekarang));
+
+                    initChart();
+                    medisChart.data.labels = labelsX;
+                    medisChart.data.datasets[0].data = dataY;
+                    medisChart.update();
+
+                    updateSummary(dataApi);
+                })
+                .catch(error => {
+                    console.error("Gagal ambil data grafik:", error);
+                    initChart();
+                });
+        };
+
+        const loadKambingOptions = () => {
+            fetch('/api/kambing')
+                .then(res => res.json())
+                .then(response => {
+                    const kambings = response.data || [];
+                    kambingSelect.innerHTML = '<option value="" disabled selected>Pilih Kambing...</option>';
+
+                    if (!Array.isArray(kambings) || kambings.length === 0) {
+                        kambingSelect.innerHTML = '<option value="">Tidak ada kambing</option>';
+                        loadChart(null);
+                        return;
+                    }
+
+                    kambings.forEach(kambing => {
+                        const option = document.createElement('option');
+                        option.value = kambing.id_kambing;
+                        option.textContent = kambing.nama || `Kambing #${kambing.id_kambing}`;
+                        kambingSelect.appendChild(option);
+                    });
+
+                    kambingSelect.addEventListener('change', () => {
+                        loadChart(kambingSelect.value);
+                    });
+
+                    kambingSelect.value = kambings[0].id_kambing;
+                    loadChart(kambingSelect.value);
+                })
+                .catch(error => {
+                    console.error('Gagal ambil daftar kambing:', error);
+                    kambingSelect.innerHTML = '<option value="">Gagal memuat kambing</option>';
+                    initChart();
+                });
+        };
+
+        initChart();
+        loadKambingOptions();
     });
 </script>
 <style>

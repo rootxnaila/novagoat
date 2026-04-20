@@ -12,3 +12,7 @@ Route::get('/dashboard', function () {
 Route::get('/katalog', function () {
     return view('katalog.katalog');
 });
+
+Route::get('/katalog/detail/{id}', function ($id) {
+    return view('katalog.detail');
+});

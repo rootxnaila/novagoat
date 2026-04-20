@@ -21,46 +21,51 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('katalog-container');
-        const loading = document.getElementById('loading-text');
 
         fetch('/api/kambing')
             .then(response => response.json())
             .then(result => {
                 if(result.status === 'success') {
-                    if(loading) loading.remove();
-                    
-                    container.innerHTML = '';
+                    container.innerHTML = ''; 
+
+                    if (result.data.length === 0) {
+                        container.innerHTML = '<div class="col-12"><p class="alert alert-warning">Kandang kosong, belum ada data kambing.</p></div>';
+                        return;
+                    }
 
                     result.data.forEach(kambing => {
                         
-                        let gambarUrl = kambing.gambar.startsWith('http') 
+                        let gambarUrl = (kambing.gambar && typeof kambing.gambar === 'string' && kambing.gambar.startsWith('http')) 
                             ? kambing.gambar 
                             : 'https://trubus.id/wp-content/uploads/2022/09/Enam-Keunggulan-Kambing-Boerka-696x516.jpg';
 
                         let cardHTML = `
                             <div class="col">
-                                <div class="card h-100 shadow-sm">
-                                    <img src="${gambarUrl}" class="card-img-top-equal" alt="Foto ${kambing.nama}">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <img src="${gambarUrl}" class="card-img-top-equal rounded-top" alt="Foto ${kambing.nama}">
                                     <div class="card-body">
-                                        <h5 class="card-title">${kambing.nama}</h5>
+                                        <h5 class="card-title fw-bold">${kambing.nama}</h5>
                                         <p class="card-text text-muted mb-1">Ras: ${kambing.jenis}</p>
                                         <p class="card-text mb-1"><strong>Berat Awal:</strong> ${kambing.berat_awal} kg</p>
-                                        <p class="card-text"><strong>Status:</strong> ${kambing.status_kondisi}</p>
+                                        <p class="card-text"><strong>Status:</strong> 
+                                            <span class="badge ${kambing.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger'}">
+                                                ${kambing.status_kondisi}
+                                            </span>
+                                        </p>
                                     </div>
                                     <div class="card-footer text-center bg-white border-top-0 pb-3">
-                                        <button class="btn btn-outline-primary btn-sm" onclick="alert('Nanti ini buka detail ID: ${kambing.id_kambing}')">Detail</button>
+                                        <a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-outline-primary btn-sm w-100">Lihat Detail</a>
                                     </div>
                                 </div>
                             </div>
                         `;
-                        
                         container.innerHTML += cardHTML;
                     });
                 }
             })
             .catch(error => {
                 console.error('Waduh, ada error ambil data:', error);
-                container.innerHTML = '<p class="text-danger">Gagal memuat data kambing. Cek koneksi API.</p>';
+                container.innerHTML = '<div class="col-12"><p class="alert alert-danger">Gagal memuat data API. Cek terminal atau database!</p></div>';
             });
     });
 </script>

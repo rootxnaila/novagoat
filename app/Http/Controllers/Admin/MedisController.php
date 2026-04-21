@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Http;
 class MedisController extends Controller
 {
     /**
-     * Tampilkan halaman medis dengan data log berat dari API
+     * Menampilkan halaman medis dengan data log berat dari API
      * 
      * @return \Illuminate\View\View
-     */
+    */
     public function index()
     {
         try {

@@ -12,18 +12,48 @@
             <li><a href="#" onclick="moveActive(this)">Dashboard</a></li>
             <li><a href="#" onclick="moveActive(this)">Monitoring Kambing</a></li>
             <li><a href="#" onclick="moveActive(this)">Penggemukan</a></li>
-            <li><a href="#" onclick="moveActive(this)">Medical Schedule</a></li>
+            <li id="medicalNav" style="display:none;"><a href="#" onclick="moveActive(this)">Medical Schedule</a></li>
             <div class="nav-indicator"></div>
         </ul>
     </nav>
 
-    <div class="header-right">
-        <div class="search-wrapper" id="searchWrapper">
-            <input type="text" class="search-input" placeholder="Cari data kambing..." id="searchInput">
-            
-            <button class="search-pill" id="searchPill" onclick="toggleSearch()">search</button>
-            
-            <span class="close-search" onclick="toggleSearch()" id="closeSearch">&times;</span>
-        </div>
+    <div class="header-right d-flex align-items-center gap-3">
+    <div class="search-wrapper" id="searchWrapper">
+        <input type="text" class="search-input" placeholder="Cari data kambing..." id="searchInput">
+        <button class="search-pill" id="searchPill" onclick="toggleSearch()">search</button>
+        <span class="close-search" onclick="toggleSearch()" id="closeSearch">&times;</span>
     </div>
+    <div id="userDropdown" class="dropdown" style="display:none;">
+        <button class="btn btn-dark dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span id="usernameDisplay">User</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-dark">
+            <li><a class="dropdown-item" href="#" id="logoutBtn">Logout</a></li>
+        </ul>
+    </div>
+</div>
+<script>
+    // Sidebar/Topbar user logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const user = localStorage.getItem('user');
+        if(user) {
+            const userObj = JSON.parse(user);
+            document.getElementById('userDropdown').style.display = 'block';
+            document.getElementById('usernameDisplay').innerText = userObj.username || 'User';
+            if(userObj.role === 'Admin') {
+                const mn = document.getElementById('medicalNav');
+                if(mn) mn.style.display = '';
+            }
+        }
+        const logoutBtn = document.getElementById('logoutBtn');
+        if(logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            };
+        }
+    });
+</script>
 </header>

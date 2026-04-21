@@ -5,30 +5,62 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KambingController;
 use App\Http\Controllers\DashboardController;
 
+/**
+ * ====================================
+ * AUTENTIKASI - Sanctum
+ * ====================================
+ */
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+/**
+ * ====================================
+ * ENDPOINT KAMBING
+ * ====================================
+ */
 
-// Menampilkan daftar semua kambing yang terdaftar
+// Ambil daftar semua kambing yang terdaftar
 Route::get('/kambing', [KambingController::class, 'index']);
 
-// Menampilkan detail informasi satu kambing berdasarkan ID
+// Ambil detail kambing berdasarkan ID
 Route::get('/kambing/{id}', [KambingController::class, 'show']);
 
-// Menambahkan kambing baru ke dalam sistem
+// Tambah kambing baru ke sistem
 Route::post('/kambing', [KambingController::class, 'store']);
 
-// Mengambil data statistik untuk ditampilkan di dashboard
+/**
+ * ====================================
+ * ENDPOINT LOG BERAT
+ * ====================================
+ */
+
+// Ambil semua data log berat (untuk halaman medis)
+Route::get('/log-berat', [KambingController::class, 'logBeratAll']);
+
+// Ambil riwayat berat kambing berdasarkan ID untuk grafik
+Route::get('/grafik-berat/{id}', [KambingController::class, 'grafikBerat']);
+
+/**
+ * ====================================
+ * ENDPOINT DASHBOARD
+ * ====================================
+ */
+
+// Ambil data statistik untuk dashboard
 Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 
-// Menampilkan grafik perkembangan berat badan kambing
-Route::get('/grafik-berat/{id}', [KambingController::class, 'grafikBerat']); 
+/**
+ * ====================================
+ * HEALTH CHECK
+ * ====================================
+ */
 
-Route::get('/ping', function() {
+// Endpoint untuk testing/verifikasi server berjalan
+Route::get('/ping', function () {
     return response()->json([
-        'status' => 'success', 
+        'status' => 'success',
         'message' => 'Pong! Server Kambing Pak Tarno siap melayani!',
-        'waktu_Sekarang' => now()
+        'waktu_sekarang' => now()
     ]);
 });

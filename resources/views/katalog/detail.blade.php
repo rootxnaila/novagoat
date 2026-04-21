@@ -42,6 +42,11 @@
                 </table>
             </div>
 
+            <h5 class="fw-bold mt-5"><i class="bi bi-graph-up"></i> Grafik Perkembangan Berat</h5>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="grafikBerat"></canvas>
+            </div>
+
             <div class="mt-4">
                 <button class="btn btn-warning px-4" onclick="window.location.href='/katalog/edit/' + currentId">
                     <i class="bi bi-pencil-square"></i> Edit
@@ -54,8 +59,10 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let currentId = window.location.pathname.split('/').pop();
+    let chartInstance = null;
 
     document.addEventListener("DOMContentLoaded", function() {
         fetch(`/api/kambing/${currentId}`)
@@ -70,7 +77,7 @@
                     document.getElementById('kambing-jenis').innerText = k.jenis;
                     document.getElementById('kambing-berat').innerText = k.berat_awal + ' kg';
                     document.getElementById('kambing-foto').src = k.gambar || 'https://via.placeholder.com/500';
-                    
+
                     const statusBadge = document.getElementById('kambing-status');
                     statusBadge.innerText = k.status_kondisi;
                     statusBadge.classList.add(k.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger');
@@ -81,10 +88,86 @@
                         <tr><td>Catatan Medis</td><td>${k.catatan || 'Belum ada catatan medis.'}</td></tr>
                         <tr><td>Terakhir Update</td><td>${new Date().toLocaleDateString('id-ID')}</td></tr>
                     `;
+
+                    // Muat grafik berat
+                    loadGrafikBerat();
                 }
             })
             .catch(err => alert('Gagal mengambil data detail: ' + err));
     });
+
+    function loadGrafikBerat() {
+        fetch(`/api/grafik-berat/${currentId}`)
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success' && result.data.length > 0) {
+                    const data = result.data;
+
+                    // Formatkan data untuk grafik
+                    const labels = data.map(d => new Date(d.tanggal_timbang).toLocaleDateString('id-ID'));
+                    const weights = data.map(d => parseFloat(d.berat_sekarang));
+
+                    // Inisialisasi Chart.js
+                    const ctx = document.getElementById('grafikBerat').getContext('2d');
+
+                    if(chartInstance) {
+                        chartInstance.destroy();
+                    }
+
+                    chartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Berat Kambing (kg)',
+                                data: weights,
+                                borderColor: '#0d6efd',
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#0d6efd',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                title: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    title: {
+                                        display: true,
+                                        text: 'Berat (kg)'
+                                    },
+                                    min: Math.min(...weights) - 5,
+                                    max: Math.max(...weights) + 5
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Tanggal Penimbangan'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            })
+            .catch(err => console.error('Gagal mengambil data grafik:', err));
+    }
 
     function deleteKambing() {
         if(confirm('Yakin ingin menghapus data kambing ini?')) {

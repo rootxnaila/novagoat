@@ -16,6 +16,10 @@ Route::get('/katalog', function () {
     return view('katalog.katalog');
 });
 
+Route::get('/katalog/detail/{id}', function ($id) {
+    return view('katalog.detail');
+});
+
 // Route untuk nampilin halaman (View)
 Route::get('/admin/medis', [MedisController::class, 'index'])->name('admin.medis');
 

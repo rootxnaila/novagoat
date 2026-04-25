@@ -9,7 +9,7 @@
 
     <div class="row d-none" id="content-detail">
         <div class="col-md-5">
-            <img id="kambing-foto" src="" class="img-fluid rounded shadow-sm border" alt="Foto Kambing">
+            <img src="{{ asset('images/foto_kambing.jpg') }}" class="img-fluid rounded shadow-sm border" alt="Foto Kambing">
         </div>
         <div class="col-md-7">
             <div class="d-flex justify-content-between align-items-center">
@@ -42,11 +42,6 @@
                 </table>
             </div>
 
-            <h5 class="fw-bold mt-5"><i class="bi bi-graph-up"></i> Grafik Perkembangan Berat</h5>
-            <div style="position: relative; height: 300px; width: 100%;">
-                <canvas id="grafikBerat"></canvas>
-            </div>
-
             <div class="mt-4">
                 <button class="btn btn-warning px-4" onclick="window.location.href='/katalog/edit/' + currentId">
                     <i class="bi bi-pencil-square"></i> Edit
@@ -56,125 +51,130 @@
                 </button>
             </div>
         </div>
+
+        <div class="row mt-5">
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white fw-bold">
+                        <i class="bi bi-graph-up"></i> Grafik Pertumbuhan Berat
+                    </div>
+                    <div class="card-body">
+                        <canvas id="grafikBerat" style="max-height: 300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white fw-bold">
+                        <i class="bi bi-list-ul"></i> Riwayat Timbangan
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Berat</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-riwayat-berat">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-    let currentId = window.location.pathname.split('/').pop();
-    let chartInstance = null;
+    const currentId = window.location.pathname.split('/').pop();
 
     document.addEventListener("DOMContentLoaded", function() {
+        
+        //1. FETCH DETAIL UTAMA
         fetch(`/api/kambing/${currentId}`)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(result => {
-                if(result.status === 'success') {
+                if(result.status === 'success' && result.data) {
                     const k = result.data;
-                    document.getElementById('loading-detail').classList.add('d-none');
-                    document.getElementById('content-detail').classList.remove('d-none');
-
-                    document.getElementById('kambing-nama').innerText = k.nama;
-                    document.getElementById('kambing-jenis').innerText = k.jenis;
-                    document.getElementById('kambing-berat').innerText = k.berat_awal + ' kg';
-                    document.getElementById('kambing-foto').src = k.gambar || 'https://via.placeholder.com/500';
-
+                    document.getElementById('kambing-nama').innerText = k.nama || 'Kambing';
+                    document.getElementById('kambing-jenis').innerText = k.jenis || '-';
+                    document.getElementById('kambing-berat').innerText = (k.berat_awal || 0) + ' kg';
+                    
                     const statusBadge = document.getElementById('kambing-status');
-                    statusBadge.innerText = k.status_kondisi;
-                    statusBadge.classList.add(k.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger');
+                    statusBadge.innerText = k.status_kondisi || 'Sehat';
+                    statusBadge.className = 'badge p-2 ' + (k.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger');
 
-                    // Isi Tabel
                     document.getElementById('kambing-info-tabel').innerHTML = `
                         <tr><td>ID Kambing</td><td>#${k.id_kambing}</td></tr>
-                        <tr><td>Catatan Medis</td><td>${k.catatan || 'Belum ada catatan medis.'}</td></tr>
-                        <tr><td>Terakhir Update</td><td>${new Date().toLocaleDateString('id-ID')}</td></tr>
+                        <tr><td>Status Medis</td><td>${k.status_kondisi || '-'}</td></tr>
+                        <tr><td>Catatan</td><td>Belum ada catatan medis.</td></tr>
                     `;
-
-                    // Muat grafik berat
-                    loadGrafikBerat();
                 }
             })
-            .catch(err => alert('Gagal mengambil data detail: ' + err));
-    });
+            .catch(err => console.error("Error Detail:", err))
+            .finally(() => {
+                document.getElementById('loading-detail').classList.add('d-none');
+                document.getElementById('content-detail').classList.remove('d-none');
+            });
 
-    function loadGrafikBerat() {
+        // --- 2. FETCH RIWAYAT BERAT
         fetch(`/api/grafik-berat/${currentId}`)
-            .then(response => response.json())
+            .then(res => res.json())
             .then(result => {
-                if(result.status === 'success' && result.data.length > 0) {
-                    const data = result.data;
+                const tbody = document.getElementById('tabel-riwayat-berat');
+                const dataArr = result.data;
 
-                    // Formatkan data untuk grafik
-                    const labels = data.map(d => new Date(d.tanggal_timbang).toLocaleDateString('id-ID'));
-                    const weights = data.map(d => parseFloat(d.berat_sekarang));
+                if (Array.isArray(dataArr) && dataArr.length > 0) {
+                    tbody.innerHTML = ''; 
+                    const tgls = [];
+                    const brts = [];
 
-                    // Inisialisasi Chart.js
+                    dataArr.forEach(item => {
+                    
+                        let t = item.tanggal_timbang || '-'; 
+                        let b = item.berat_sekarang || 0;
+                        
+                        tgls.push(t);
+                        brts.push(b);
+
+                        tbody.innerHTML += `<tr><td>${t}</td><td><strong>${b} kg</strong></td></tr>`;
+                    });
+
                     const ctx = document.getElementById('grafikBerat').getContext('2d');
-
-                    if(chartInstance) {
-                        chartInstance.destroy();
-                    }
-
-                    chartInstance = new Chart(ctx, {
+                    new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: labels,
+                            labels: tgls,
                             datasets: [{
-                                label: 'Berat Kambing (kg)',
-                                data: weights,
+                                label: 'Berat (kg)',
+                                data: brts,
                                 borderColor: '#0d6efd',
-                                backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                                borderWidth: 2,
+                                tension: 0.3,
                                 fill: true,
-                                tension: 0.4,
-                                pointRadius: 5,
-                                pointBackgroundColor: '#0d6efd',
-                                pointBorderColor: '#fff',
-                                pointBorderWidth: 2,
-                                pointHoverRadius: 7
+                                backgroundColor: 'rgba(13, 110, 253, 0.1)'
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    display: true,
-                                    position: 'top'
-                                },
-                                title: {
-                                    display: false
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    beginAtZero: false,
-                                    title: {
-                                        display: true,
-                                        text: 'Berat (kg)'
-                                    },
-                                    min: Math.min(...weights) - 5,
-                                    max: Math.max(...weights) + 5
-                                },
-                                x: {
-                                    title: {
-                                        display: true,
-                                        text: 'Tanggal Penimbangan'
-                                    }
-                                }
-                            }
+                            scales: { y: { beginAtZero: false } }
                         }
                     });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="2" class="text-center">Riwayat belum tersedia.</td></tr>';
                 }
             })
-            .catch(err => console.error('Gagal mengambil data grafik:', err));
-    }
+            .catch(err => console.error("Error Riwayat:", err));
+    }); 
 
     function deleteKambing() {
-        if(confirm('Yakin ingin menghapus data kambing ini?')) {
+        if(confirm('Hapus data ini?')) {
             fetch(`/api/kambing/${currentId}`, { method: 'DELETE' })
-                .then(res => res.json())
                 .then(() => {
-                    alert('Data berhasil dihapus!');
+                    alert('Berhasil dihapus!');
                     window.location.href = '/katalog';
                 });
         }

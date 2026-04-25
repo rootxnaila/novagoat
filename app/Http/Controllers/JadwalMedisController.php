@@ -59,4 +59,42 @@ class JadwalMedisController extends Controller
             'data' => $jadwal
         ], 201);
     }
+    //edit isi jadwal mediss
+    public function update(Request $request, $id)
+    {
+        $jadwal = JadwalMedis::find($id);
+
+        if (!$jadwal) {
+            return response()->json(['message' => 'Jadwal medis tidak ditemukan'], 404);
+        }
+
+        $request->validate([
+            'jenis_tindakan' => 'sometimes|required|string',
+            'tanggal_rencana' => 'sometimes|required|date',
+            'status' => 'sometimes|required|in:Belum,Selesai'
+        ]);
+
+        $jadwal->update($request->all());
+
+        return response()->json([
+            'message' => 'Jadwal medis berhasil diupdate!',
+            'data' => $jadwal
+        ]);
+    }
+
+    //delete jadwal medis
+    public function destroy($id)
+    {
+        $jadwal = JadwalMedis::find($id);
+
+        if (!$jadwal) {
+            return response()->json(['message' => 'Jadwal medis tidak ditemukan'], 404);
+        }
+
+        $jadwal->delete();
+
+        return response()->json([
+            'message' => 'Jadwal medis berhasil dihapus!'
+        ]);
+    }
 }

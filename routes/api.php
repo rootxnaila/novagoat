@@ -20,7 +20,9 @@
 
     // protected routes (butuh token)
     Route::middleware('auth:sanctum')->group(function () {
-    
+    Route::put('/jadwal-medis/{id}', [JadwalMedisController::class, 'update']);
+    Route::delete('/jadwal-medis/{id}', [JadwalMedisController::class, 'destroy']);
+
     //admin n anak kandang
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/kambing/{id}/timbang', [LogBeratController::class, 'store']); //daily timbang
@@ -31,9 +33,9 @@
 
     //admin-only routes
     Route::middleware(\App\Http\Middleware\IsAdmin::class)->group(function () {
-        Route::post('/kambing', [KambingController::class, 'store']);          //tambah wedus
-        Route::put('/kambing/{id}', [KambingController::class, 'update']);     // edit data wedus
-        Route::delete('/kambing/{id}', [KambingController::class, 'destroy']); // hapus wedus
+        Route::post('/kambing', [KambingController::class, 'store']);//tambah wedus
+        Route::put('/kambing/{id}', [KambingController::class, 'update']);// edit data wedus
+        Route::delete('/kambing/{id}', [KambingController::class, 'destroy']);// hapus wedus
         
     });
 });

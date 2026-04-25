@@ -72,5 +72,33 @@ class KambingController extends Controller
             'data' => $riwayat
         ]);
     }
+    public function update(Request $request, $id) //update wedus
+    {
+        $kambing = \App\Models\Kambing::find($id);
+        
+        if (!$kambing) {
+            return response()->json(['message' => 'Data kambing tidak ditemukan'], 404);
+        }
+
+        $kambing->update($request->all());
+
+        return response()->json([
+            'message' => 'Data kambing berhasil diupdate!',
+            'data' => $kambing
+        ]);
+    }
+
+    public function destroy($id) //delete wedus
+    {
+        $kambing = \App\Models\Kambing::find($id);
+
+        if (!$kambing) {
+            return response()->json(['message' => 'Data kambing tidak ditemukan'], 404);
+        }
+
+        $kambing->delete();
+
+        return response()->json(['message' => 'Data kambing berhasil dihapus!']);
+    }
 }
 ?>

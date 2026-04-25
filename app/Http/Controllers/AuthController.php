@@ -47,7 +47,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Berhasil logout, sampai jumpa Pak Tarno!'
+            'message' => 'Berhasil logout, ' . $request->user()->username
         ]);
     }
     // admin mendaftarkan anak kandang baru

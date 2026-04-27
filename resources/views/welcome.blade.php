@@ -28,14 +28,14 @@
     .btn-login:hover { background: rgba(255,255,255,0.1); }
 </style>
 
-<main class="hero">
+<div class="hero">
     <div class="hero-content">
         <h1>Peternakan<br>Pak Tarno</h1>
         <p>Kelola peternakan kambing Anda dengan sistem monitoring modern. Pantau pertumbuhan, pakan, dan kesehatan hewan ternak secara real-time.</p>
         <div class="btn-group">
-            <button class="btn-login">Login</button>
+            <a href="/login" class="btn-login text-decoration-none">Login</a>
             <button class="btn-register">Daftar</button>
         </div>
     </div>
-</main>
+</div>
 @endsection

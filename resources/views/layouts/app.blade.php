@@ -93,10 +93,14 @@
         .search-wrapper.active .close-search { display: block; }
     </style>
 </head>
-<body>
+<body class="{{ Request::is('login*') ? 'login-page' : '' }}">
 
+    {{-- NAVBAR only when NOT on login page (covers /login and subpaths) --}}
+    @if(!Request::is('login*'))
         @include('layouts.navbar')
-        <main style="padding-top: 100px; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+    @endif
+
+    <main style="height: 100vh; overflow: hidden;">
         @yield('content')
     </main>
         <script>
@@ -128,6 +132,25 @@
                 const dash = document.querySelector('.nav-links a');
                 if(dash) moveActive(dash);
             };
+
+            // Frontend route guard: redirect to /login when token missing for protected pages
+            document.addEventListener('DOMContentLoaded', function() {
+                const token = localStorage.getItem('token_sakti');
+                const hasToken = Boolean(token) && token !== 'null' && token !== 'undefined' && String(token).trim() !== '';
+                const path = window.location.pathname;
+                const protectedPrefixes = ['/dashboard','/medis','/katalog','/admin'];
+                const isProtected = protectedPrefixes.some(p => path === p || path.startsWith(p + '/') || path.includes(p));
+
+                if (isProtected && !hasToken) {
+                    window.location.replace('/login');
+                    return;
+                }
+
+                if (path === '/login' && hasToken) {
+                    window.location.replace('/dashboard');
+                    return;
+                }
+            });
         </script>
     </body>
     </html>

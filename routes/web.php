@@ -20,6 +20,11 @@ Route::get('/katalog/detail/{id}', function ($id) {
     return view('katalog.detail');
 });
 
+// Tambahkan rute untuk halaman edit
+Route::get('/katalog/edit/{id}', function ($id) {
+    return view('katalog.edit', ['id' => $id]);
+});
+
 // Route untuk nampilin halaman (View)
 Route::get('/admin/medis', [MedisController::class, 'index'])->name('admin.medis');
 

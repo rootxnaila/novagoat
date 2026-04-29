@@ -3,17 +3,20 @@
 @section('content')
 <style>
     .card-img-top-equal {
-        height: 250px; 
+        height: 180px; 
         object-fit: cover; 
+    }
+    .card-title {
+        font-size: 1.1rem;
     }
 </style>
 
 <div class="container mt-5">
     <h2 class="mb-4">Ensiklopedia Kambing</h2>
     
-    <div class="row row-cols-1 row-cols-md-3 g-4" id="katalog-container">
-        <div class="col-12" id="loading-text">
-            <p class="text-muted">Sedang memuat data kambing dari kandang...</p>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4" id="katalog-container">
+             <div class="col-12" id="loading-text">
+        <p class="text-muted text-center">Sedang memuat data kambing dari kandang...</p>
         </div>
     </div>
 </div>

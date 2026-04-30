@@ -30,7 +30,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 35px;
+            padding: 20px 35px;
             z-index: 1000;
         }
 
@@ -39,17 +39,17 @@
         .logo-text-stack { display: flex; flex-direction: column; line-height: 1.1; }
         .logo-main { color: white; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
         .logo-sub { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; position: relative; }
-        .nav-links li { z-index: 2; }
+        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; position: relative; margin: 0; padding: 0; }
+        .nav-links li { z-index: 2; margin: 0; padding: 0; }
         .nav-links a { 
             text-decoration: none; color: rgba(255, 255, 255, 0.8); 
             font-size: 0.85rem; padding: 10px 20px; display: block;
-            transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: color 0.4s ease;
         }
         .nav-links a.active { color: #000; }
         .nav-indicator {
             position: absolute; background: #fff; border-radius: 25px; z-index: 1;
-            transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .search-wrapper {

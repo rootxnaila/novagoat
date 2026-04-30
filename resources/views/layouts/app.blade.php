@@ -8,7 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #000; color: white; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background: #000; color: white; }
+        
+        .main-content-padded { padding-top: 110px; min-height: 100vh; }
+        .main-content-full { height: 100vh; overflow: hidden; }
+        
+        body.login-page { overflow: hidden; }
 
         .header-nav {
             position: fixed;
@@ -93,14 +98,14 @@
         .search-wrapper.active .close-search { display: block; }
     </style>
 </head>
-<body class="{{ Request::is('login*') ? 'login-page' : '' }}">
+<body class="{{ Request::is('login*') || Request::is('register*') ? 'login-page' : '' }}">
 
-    {{-- NAVBAR only when NOT on login page (covers /login and subpaths) --}}
-    @if(!Request::is('login*'))
+    {{-- NAVBAR only when NOT on login page, NOT on register page, and NOT on welcome page --}}
+    @if(!Request::is('login*') && !Request::is('register*') && !Request::is('/'))
         @include('layouts.navbar')
     @endif
 
-    <main style="height: 100vh; overflow: hidden;">
+    <main class="{{ (!Request::is('login*') && !Request::is('register*') && !Request::is('/')) ? 'main-content-padded' : 'main-content-full' }}">
         @yield('content')
     </main>
         <script>
@@ -129,8 +134,21 @@
             }
 
             window.onload = function() {
-                const dash = document.querySelector('.nav-links a');
-                if(dash) moveActive(dash);
+                const currentPath = window.location.pathname;
+                const links = document.querySelectorAll('.nav-links a');
+                let found = false;
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href !== '#' && currentPath.startsWith(href)) {
+                        moveActive(link);
+                        found = true;
+                    }
+                });
+                
+                // Default to first link if none matches
+                if(!found && links.length > 0) {
+                    moveActive(links[0]);
+                }
             };
 
             // Frontend route guard: redirect to /login when token missing for protected pages
@@ -146,11 +164,12 @@
                     return;
                 }
 
-                if (path === '/login' && hasToken) {
+                if ((path === '/login' || path === '/register' || path === '/') && hasToken) {
                     window.location.replace('/dashboard');
                     return;
                 }
             });
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>

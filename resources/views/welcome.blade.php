@@ -34,7 +34,7 @@
         <p>Kelola peternakan kambing Anda dengan sistem monitoring modern. Pantau pertumbuhan, pakan, dan kesehatan hewan ternak secara real-time.</p>
         <div class="btn-group">
             <a href="/login" class="btn-login text-decoration-none">Login</a>
-            <button class="btn-register">Daftar</button>
+            <a href="/register" class="btn-register text-decoration-none text-center">Daftar</a>
         </div>
     </div>
 </div>

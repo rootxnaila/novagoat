@@ -1,9 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<div class="container-fluid px-4" style="padding-top: 180px; padding-bottom: 100px; background-color: #000; min-height: 100vh;">
+<div class="container-fluid px-4" style="padding-top: 20px; padding-bottom: 100px; background-color: #000; min-height: 100vh;">
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-5 px-2">
         <div>
@@ -106,78 +104,85 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    // --- 1. START FETCHING DATA IMMEDIATELY (PARALLEL WITH CHART.JS DOWNLOAD) ---
+    const pKambing = fetch('/api/kambing').then(res => res.json()).catch(() => ({data: []}));
+    
+    const authHeaders = {
+        'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
+    
+    const pJadwal = fetch('/api/jadwal-medis', { headers: authHeaders })
+        .then(res => res.json())
+        .catch(() => ({data: []}));
+
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('medisChart').getContext('2d');
         const kambingSelect = document.getElementById('kambingSelect');
         const formMedis = document.getElementById('formMedis');
         const jadwalList = document.getElementById('jadwalList');
-        let medisChart = null;
 
-        // Ambil token dari storage (Set pas login)
-        const getAuthHeader = () => ({
-            'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+        // --- 2. INITIALIZE CHART ONCE ---
+        let medisChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ 
+                label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
+            }]},
+            options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // --- 1. CHART INITIALIZATION ---
-        const initChart = () => {
-            if (medisChart) medisChart.destroy();
-            medisChart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: [], datasets: [{ 
-                    label: 'Berat (Kg)', 
-                    data: [], 
-                    borderColor: '#00fbff', 
-                    tension: 0.4, 
-                    fill: true, 
-                    backgroundColor: 'rgba(0, 251, 255, 0.1)' 
-                }]},
-                options: { responsive: true, maintainAspectRatio: false }
-            });
+        // --- 3. HELPER FUNCTIONS ---
+        const updateChart = (data) => {
+            medisChart.data.labels = data.map(i => i.tanggal_timbang);
+            medisChart.data.datasets[0].data = data.map(i => i.berat_sekarang);
+            medisChart.update();
+
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statTerakhir').innerText = data.length ? data[data.length-1].berat_sekarang + ' kg' : '-';
+            const avg = data.length ? (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1) : 0;
+            document.getElementById('statAvg').innerText = avg + ' kg';
         };
 
-        // --- 2. LOAD DATA DARI API ---
         const loadChartData = (id) => {
             fetch(`/api/grafik-berat/${id}`)
                 .then(res => res.json())
-                .then(res => {
-                    const data = res.data || [];
-                    initChart();
-                    medisChart.data.labels = data.map(i => i.tanggal_timbang);
-                    medisChart.data.datasets[0].data = data.map(i => i.berat_sekarang);
-                    medisChart.update();
-
-                    // Update Stats Card
-                    document.getElementById('statTotal').innerText = data.length;
-                    document.getElementById('statTerakhir').innerText = data.length ? data[data.length-1].berat_sekarang + ' kg' : '-';
-                    const avg = data.length ? (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1) : 0;
-                    document.getElementById('statAvg').innerText = avg + ' kg';
-                });
+                .then(res => updateChart(res.data || []));
         };
 
-        const loadJadwalMedis = () => {
-            fetch('/api/jadwal-medis', { headers: getAuthHeader() })
-                .then(res => res.json())
-                .then(res => {
-                    const data = res.data || [];
-                    jadwalList.innerHTML = data.length ? '' : '<p class="text-secondary text-center">Tidak ada jadwal</p>';
-                    data.forEach(item => {
-                        jadwalList.innerHTML += `
-                            <div class="p-3 mb-3 shadow-sm position-relative" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${item.status === 'selesai' ? '#198754' : '#00fbff'};">
-                                <small class="text-info fw-bold d-block mb-1">${item.tanggal}</small>
-                                <h6 class="text-white fw-bold mb-0">${item.kegiatan}</h6>
-                                ${item.status !== 'selesai' ? `<button onclick="updateStatus(${item.id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;">✓</button>` : ''}
-                            </div>
-                        `;
-                    });
-                });
+        const renderJadwal = (data) => {
+            jadwalList.innerHTML = data.length ? '' : '<p class="text-secondary text-center">Tidak ada jadwal</p>';
+            data.forEach(item => {
+                jadwalList.innerHTML += `
+                    <div class="p-3 mb-3 shadow-sm position-relative" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${item.status === 'selesai' ? '#198754' : '#00fbff'};">
+                        <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal}</small>
+                        <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan}</h6>
+                        ${item.status !== 'selesai' ? `<button onclick="updateStatus(${item.id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;">✓</button>` : ''}
+                    </div>
+                `;
+            });
         };
 
-        // --- 3. SUBMIT TIMBANGAN (PROTECTED) ---
+        // --- 4. HANDLE PARALLEL DATA ---
+        pKambing.then(res => {
+            const list = res.data || [];
+            kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
+            list.forEach(k => {
+                kambingSelect.innerHTML += `<option value="${k.id_kambing}">${k.nama || 'Kambing #'+k.id_kambing}</option>`;
+            });
+            if(list.length) {
+                kambingSelect.value = list[0].id_kambing;
+                loadChartData(list[0].id_kambing);
+            }
+        });
+
+        pJadwal.then(res => renderJadwal(res.data || []));
+
+        // --- 5. EVENT LISTENERS ---
+        kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
+
         formMedis.addEventListener('submit', function(e) {
             e.preventDefault();
             const id = kambingSelect.value;
@@ -185,46 +190,21 @@
 
             fetch(`/api/kambing/${id}/timbang`, {
                 method: 'POST',
-                headers: getAuthHeader(),
-                body: JSON.stringify({
-                    berat: e.target.berat.value,
-                    tanggal: e.target.tanggal.value
-                })
-            })
-            .then(res => res.json())
-            .then(() => {
+                headers: authHeaders,
+                body: JSON.stringify({ berat: e.target.berat.value, tanggal: e.target.tanggal.value })
+            }).then(() => {
                 bootstrap.Modal.getInstance(document.getElementById('modalTambahJadwal')).hide();
                 formMedis.reset();
                 loadChartData(id);
             });
         });
 
-        // --- 4. GLOBAL FUNC UNTUK UPDATE STATUS (PATCH) ---
         window.updateStatus = (id) => {
-            fetch(`/api/jadwal-medis/${id}`, {
-                method: 'PATCH',
-                headers: getAuthHeader()
-            }).then(() => loadJadwalMedis());
+            fetch(`/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders })
+                .then(() => fetch('/api/jadwal-medis', { headers: authHeaders }))
+                .then(res => res.json())
+                .then(res => renderJadwal(res.data || []));
         };
-
-        // --- 5. INITIAL RUN ---
-        fetch('/api/kambing')
-            .then(res => res.json())
-            .then(res => {
-                const list = res.data || [];
-                kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
-                list.forEach(k => {
-                    kambingSelect.innerHTML += `<option value="${k.id_kambing}">${k.nama || 'Kambing #'+k.id_kambing}</option>`;
-                });
-                if(list.length) {
-                    kambingSelect.value = list[0].id_kambing;
-                    loadChartData(list[0].id_kambing);
-                }
-            });
-
-        kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
-        loadJadwalMedis();
-        initChart();
     });
 </script>
 @endsection

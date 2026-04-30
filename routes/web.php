@@ -36,7 +36,3 @@ Route::get('/admin/medis-data', function () {
 Route::get('/login', function () {
     return view('auth.login');
 });
-// pintu masuk halaman daftar
-Route::get('/register', function () {
-    return view('auth.register');
-});

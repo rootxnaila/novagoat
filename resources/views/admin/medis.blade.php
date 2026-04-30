@@ -12,7 +12,8 @@
             <select id="kambingSelect" class="form-select form-select-sm bg-black text-white border-secondary" style="width: 220px; min-width: 180px;">
                 <option value="" disabled selected>Pilih Kambing...</option>
             </select>
-            <button class="btn btn-info btn-sm rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahJadwal">+ TAMBAH JADWAL</button>
+            <button class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark shadow" data-bs-toggle="modal" data-bs-target="#modalJadwalMedis">+ JADWAL MEDIS</button>
+            <button class="btn btn-info btn-sm rounded-pill px-3 fw-bold text-dark shadow" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
         </div>
     </div>
 
@@ -46,7 +47,7 @@
         <div class="col-lg-8">
             <div class="card bg-dark border-secondary shadow" style="border-radius: 20px; overflow: hidden;">
                 <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Berat Badan Ternak</h6>
+                    <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Berat Badan Kambing</h6>
                     <div class="d-flex align-items-center bg-black px-3 py-1 rounded-pill" style="border: 1px solid #333;">
                         <div style="width: 10px; height: 10px; background: #00fbff; border-radius: 2px; margin-right: 8px;"></div>
                         <span class="text-white" style="font-size: 10px;">BERAT BADAN (KG)</span>
@@ -73,14 +74,15 @@
 </div>
 
 {{-- Modal --}}
-<div class="modal fade" id="modalTambahJadwal" tabindex="-1" aria-hidden="true">
+{{-- Modal Input Berat --}}
+<div class="modal fade" id="modalInputBerat" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark border-secondary shadow-lg" style="border-radius: 20px;">
             <div class="modal-header border-secondary">
                 <h5 class="modal-title text-white fw-bold">Input Data Timbangan</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formMedis">
+            <form id="formInputBerat">
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label text-secondary small fw-bold">TANGGAL TIMBANG</label>
@@ -96,46 +98,98 @@
                 </div>
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-info rounded-pill px-4 fw-bold text-dark">Simpan Data</button>
+                    <button type="submit" class="btn btn-sm btn-info rounded-pill px-4 fw-bold text-dark">Simpan Berat</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{-- Modal Tambah Jadwal Medis --}}
+<div class="modal fade" id="modalJadwalMedis" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white fw-bold">Tambah Jadwal Medis / Vaksin</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formJadwalMedis">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">TANGGAL RENCANA</label>
+                        <input type="date" name="tanggal_rencana" class="form-control bg-black border-secondary text-white shadow-none" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">JENIS TINDAKAN / VAKSIN</label>
+                        <input type="text" name="jenis_tindakan" class="form-control bg-black border-secondary text-white shadow-none" placeholder="Contoh: Vaksin PMK, Pemberian Vitamin" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4 fw-bold text-dark">Simpan Jadwal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
 
 <script>
-    // --- 1. START FETCHING DATA IMMEDIATELY (PARALLEL WITH CHART.JS DOWNLOAD) ---
-    const pKambing = fetch('/api/kambing').then(res => res.json()).catch(() => ({data: []}));
-    
-    const authHeaders = {
-        'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    };
-    
-    const pJadwal = fetch('/api/jadwal-medis', { headers: authHeaders })
-        .then(res => res.json())
-        .catch(() => ({data: []}));
-
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
         const ctx = document.getElementById('medisChart').getContext('2d');
         const kambingSelect = document.getElementById('kambingSelect');
-        const formMedis = document.getElementById('formMedis');
+        const formInputBerat = document.getElementById('formInputBerat');
+        const formJadwalMedis = document.getElementById('formJadwalMedis');
         const jadwalList = document.getElementById('jadwalList');
 
-        // --- 2. INITIALIZE CHART ONCE ---
-        let medisChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: [], datasets: [{ 
-                label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
-            }]},
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        const authHeaders = {
+            'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
 
-        // --- 3. HELPER FUNCTIONS ---
+        // UI Loading States
+        document.getElementById('statTotal').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
+        document.getElementById('statTerakhir').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
+        document.getElementById('statAvg').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
+        jadwalList.innerHTML = '<p class="text-secondary text-center mt-4"><span class="spinner-border spinner-border-sm"></span> Memuat jadwal...</p>';
+        kambingSelect.innerHTML = '<option disabled selected>Memuat data kambing...</option>';
+
+        let medisChart = null;
+        let pendingChartData = null;
+
+        const tryInitChart = () => {
+            // Tunggu sampai Chart.js selesai didownload (karena pakai async)
+            if (typeof Chart === 'undefined') {
+                setTimeout(tryInitChart, 100);
+                return;
+            }
+            try {
+                medisChart = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: [], datasets: [{ 
+                        label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
+                    }]},
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+                
+                // Jika data sudah tiba lebih dulu daripada Chart.js, langsung gambar
+                if (pendingChartData) {
+                    updateChart(pendingChartData);
+                }
+            } catch(e) {
+                console.error("Gagal memuat Chart.js:", e);
+            }
+        };
+        tryInitChart();
+
         const updateChart = (data) => {
+            if (!medisChart) {
+                // Simpan data sementara jika Chart.js masih proses download
+                pendingChartData = data;
+                return;
+            }
             medisChart.data.labels = data.map(i => i.tanggal_timbang);
             medisChart.data.datasets[0].data = data.map(i => i.berat_sekarang);
             medisChart.update();
@@ -146,65 +200,137 @@
             document.getElementById('statAvg').innerText = avg + ' kg';
         };
 
-        const loadChartData = (id) => {
-            fetch(`/api/grafik-berat/${id}`)
-                .then(res => res.json())
-                .then(res => updateChart(res.data || []));
+        const loadChartData = async (id) => {
+            try {
+                let res = await fetch(`/api/grafik-berat/${id}`);
+                res = await res.json();
+                updateChart(res.data || []);
+            } catch(e) { console.error("Gagal load grafik:", e); }
         };
 
         const renderJadwal = (data) => {
-            jadwalList.innerHTML = data.length ? '' : '<p class="text-secondary text-center">Tidak ada jadwal</p>';
-            data.forEach(item => {
+            // Filter jadwal yang belum selesai saja
+            const upcoming = data.filter(item => (item.status || '').toLowerCase() !== 'selesai');
+
+            jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+            upcoming.forEach(item => {
+                // Gunakan id_jadwal karena itu primary key di database Anda
+                const id = item.id_jadwal || item.id; 
                 jadwalList.innerHTML += `
-                    <div class="p-3 mb-3 shadow-sm position-relative" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${item.status === 'selesai' ? '#198754' : '#00fbff'};">
-                        <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal}</small>
-                        <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan}</h6>
-                        ${item.status !== 'selesai' ? `<button onclick="updateStatus(${item.id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;">✓</button>` : ''}
+                    <div class="p-3 mb-3 shadow-sm position-relative" id="jadwal-${id}" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid #00fbff;">
+                        <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal || '-'}</small>
+                        <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan || '-'}</h6>
+                        <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;" title="Tandai Selesai">✓</button>
                     </div>
                 `;
             });
         };
 
-        // --- 4. HANDLE PARALLEL DATA ---
-        pKambing.then(res => {
-            const list = res.data || [];
-            kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
-            list.forEach(k => {
-                kambingSelect.innerHTML += `<option value="${k.id_kambing}">${k.nama || 'Kambing #'+k.id_kambing}</option>`;
-            });
-            if(list.length) {
-                kambingSelect.value = list[0].id_kambing;
-                loadChartData(list[0].id_kambing);
-            }
-        });
+        const loadJadwal = async () => {
+            try {
+                let res = await fetch('/api/jadwal-medis', { headers: authHeaders });
+                res = await res.json();
+                renderJadwal(res.data || []);
+            } catch(e) { console.error("Gagal load jadwal:", e); }
+        };
 
-        pJadwal.then(res => renderJadwal(res.data || []));
+        const loadKambing = async () => {
+            try {
+                let res = await fetch('/api/kambing');
+                res = await res.json();
+                const list = res.data || [];
+                kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
+                list.forEach(k => {
+                    kambingSelect.innerHTML += `<option value="${k.id_kambing}">${k.nama || 'Kambing #'+k.id_kambing}</option>`;
+                });
+                if(list.length) {
+                    kambingSelect.value = list[0].id_kambing;
+                    loadChartData(list[0].id_kambing);
+                } else {
+                    updateChart([]); // Kosongkan chart jika tidak ada kambing
+                }
+            } catch(e) { console.error("Gagal load kambing:", e); }
+        };
 
-        // --- 5. EVENT LISTENERS ---
+        // Listeners
         kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
 
-        formMedis.addEventListener('submit', function(e) {
+        formInputBerat.addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = kambingSelect.value;
-            if(!id) return alert('Pilih kambing!');
+            if(!id) return alert('Pilih kambing terlebih dahulu!');
 
-            fetch(`/api/kambing/${id}/timbang`, {
-                method: 'POST',
-                headers: authHeaders,
-                body: JSON.stringify({ berat: e.target.berat.value, tanggal: e.target.tanggal.value })
-            }).then(() => {
-                bootstrap.Modal.getInstance(document.getElementById('modalTambahJadwal')).hide();
-                formMedis.reset();
+            try {
+                await fetch(`/api/kambing/${id}/timbang`, {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ berat: e.target.berat.value, tanggal: e.target.tanggal.value })
+                });
+                bootstrap.Modal.getInstance(document.getElementById('modalInputBerat')).hide();
+                formInputBerat.reset();
                 loadChartData(id);
-            });
+            } catch(e) { console.error("Gagal simpan berat:", e); }
         });
 
-        window.updateStatus = (id) => {
-            fetch(`/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders })
-                .then(() => fetch('/api/jadwal-medis', { headers: authHeaders }))
-                .then(res => res.json())
-                .then(res => renderJadwal(res.data || []));
+        formJadwalMedis.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = kambingSelect.value;
+            if(!id) return alert('Pilih kambing terlebih dahulu!');
+
+            try {
+                await fetch('/api/jadwal-medis', {
+                    method: 'POST',
+                    headers: authHeaders,
+                    body: JSON.stringify({ 
+                        id_kambing: id,
+                        jenis_tindakan: e.target.jenis_tindakan.value, 
+                        tanggal_rencana: e.target.tanggal_rencana.value 
+                    })
+                });
+                bootstrap.Modal.getInstance(document.getElementById('modalJadwalMedis')).hide();
+                formJadwalMedis.reset();
+                loadJadwal();
+            } catch(e) { console.error("Gagal simpan jadwal:", e); }
+        });
+
+        window.updateStatus = async (id) => {
+            if (confirm('Apakah vaksin / tindakan medis ini sudah dilakukan? Jika iya, jadwal ini akan dihapus dari daftar.')) {
+                try {
+                    // 1. Kirim perintah hapus ke database
+                    const response = await fetch(`/api/jadwal-medis/${id}`, { 
+                        method: 'DELETE', 
+                        headers: authHeaders 
+                    });
+                    
+                    if (response.ok) {
+                        // 2. Langsung hapus elemen dari layar secara instan (UI feedback)
+                        const element = document.getElementById(`jadwal-${id}`);
+                        if (element) {
+                            element.style.transition = "all 0.3s ease";
+                            element.style.opacity = "0";
+                            element.style.transform = "translateX(20px)";
+                            setTimeout(() => {
+                                element.remove();
+                                // Cek jika sudah kosong tampilkan pesan "Tidak ada jadwal"
+                                if (jadwalList.children.length === 0) {
+                                    jadwalList.innerHTML = '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+                                }
+                            }, 300);
+                        }
+                    } else {
+                        const errData = await response.json();
+                        alert('Gagal menghapus: ' + (errData.message || 'Error tidak dikenal'));
+                    }
+                } catch(e) { 
+                    console.error("Gagal update status:", e);
+                    alert('Terjadi kesalahan koneksi saat mencoba menghapus.');
+                }
+            }
         };
+
+        // Start Fetching Data
+        loadKambing();
+        loadJadwal();
     });
 </script>
 @endsection

@@ -56,7 +56,7 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required|unique:users',
             'password' => 'required|min:6',
-            'role'     => 'required|in:Admin,Anak_Kandang'
+            'role'     => 'required|in:admin,anak_kandang'
         ]);
 
         $user = User::create([
@@ -67,10 +67,10 @@ class AuthController extends Controller
         ]);
 
         return response()->json([
-            'status' => 'success',
-            'message' => 'User baru berhasil ditambahkan!',
-            'data' => $user
-        ]);
-    }
+        'status' => 'success',
+        'message' => 'Akun karyawan baru berhasil dibuat!',
+        'data' => $user
+    ], 201); //201 created
+}
 }
 

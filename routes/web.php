@@ -38,3 +38,7 @@ Route::post('/admin/medis/store', [MedisController::class, 'store'])->name('admi
 Route::get('/login', function () {
     return view('auth.login');
 });
+// pintu masuk halaman daftar
+Route::get('/register', function () {
+    return view('auth.register');
+});

@@ -9,10 +9,10 @@
 
     <nav>
         <ul class="nav-links" id="mainNav">
-            <li><a href="#" onclick="moveActive(this)">Dashboard</a></li>
-            <li><a href="#" onclick="moveActive(this)">Monitoring Kambing</a></li>
+            <li><a href="/dashboard" onclick="moveActive(this)">Dashboard</a></li>
+            <li><a href="/katalog" onclick="moveActive(this)">Monitoring Kambing</a></li>
             <li><a href="#" onclick="moveActive(this)">Penggemukan</a></li>
-            <li id="medicalNav" style="display:none;"><a href="#" onclick="moveActive(this)">Medical Schedule</a></li>
+            <li id="medicalNav" style="display:none;"><a href="/admin/medis" onclick="moveActive(this)">Medical Schedule</a></li>
             <div class="nav-indicator"></div>
         </ul>
     </nav>
@@ -49,7 +49,7 @@
         if(logoutBtn) {
             logoutBtn.onclick = function(e) {
                 e.preventDefault();
-                localStorage.removeItem('token');
+                localStorage.removeItem('token_sakti');
                 localStorage.removeItem('user');
                 window.location.href = '/login';
             };

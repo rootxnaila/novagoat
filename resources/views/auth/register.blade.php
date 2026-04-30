@@ -4,13 +4,13 @@
 <div id="loginContainer" class="d-flex align-items-center justify-content-center vh-100 modern-entrance" style="background: linear-gradient(-45deg, #801a0d, #b38012, #8c7a00, #66290d); background-size: 400% 400%; animation: gradientBG 10s ease infinite;">
     <div class="card p-4 shadow-lg border-0" style="min-width:340px; max-width:380px; background:rgba(20,20,20,0.9); backdrop-filter: blur(10px); border-radius:25px; border: 1px solid rgba(255, 255, 255, 0.1);">
         <div class="text-center mb-4">
-            <h3 class="fw-bold mt-2 mb-0" style="color:#fff;">Login Admin NovaGoat</h3>
-            <small class="text-light opacity-75">Silakan masuk untuk melanjutkan</small>
+            <h3 class="fw-bold mt-2 mb-0" style="color:#fff;">Daftar NovaGoat</h3>
+            <small class="text-light opacity-75">Silakan buat akun baru</small>
         </div>
-        <form id="loginForm" autocomplete="off">
+        <form id="registerForm" autocomplete="off">
             <div class="mb-3">
-                <label class="form-label text-light">Email atau Username</label>
-                <input type="text" name="username" class="form-control bg-dark text-light border-secondary" placeholder="Email atau Username" style="border-radius: 10px;" required>
+                <label class="form-label text-light">Username</label>
+                <input type="text" name="username" class="form-control bg-dark text-light border-secondary" placeholder="Username" style="border-radius: 10px;" required>
             </div>
             <div class="mb-3">
                 <label class="form-label text-light">Password</label>
@@ -29,11 +29,19 @@
                     </button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-warning w-100 fw-bold py-2 mt-2 btn-animate" style="border-radius: 10px; background: #f5af19; border: none; color: #000; position: relative; overflow: hidden;">Masuk</button>
-            <div class="text-center mt-3">
-                <a href="/register" class="text-light opacity-75 hover-opacity-100" style="text-decoration: none; font-size: 0.85rem; transition: 0.3s;">Belum punya akun? Daftar di sini</a>
+            <div class="mb-3">
+                <label class="form-label text-light">Role</label>
+                <select name="role" class="form-control bg-dark text-light border-secondary" style="border-radius: 10px;" required>
+                    <option value="Anak_Kandang">Anak Kandang</option>
+                    <option value="Admin">Admin</option>
+                </select>
             </div>
-            <div id="loginError" class="text-danger mt-2 text-center" style="display:none;"></div>
+            <button type="submit" class="btn btn-warning w-100 fw-bold py-2 mt-2 btn-animate" style="border-radius: 10px; background: #f5af19; border: none; color: #000; position: relative; overflow: hidden;">Daftar</button>
+            <div class="text-center mt-3">
+                <a href="/login" class="text-light opacity-75 hover-opacity-100" style="text-decoration: none; font-size: 0.85rem; transition: 0.3s;">Sudah punya akun? Masuk di sini</a>
+            </div>
+            <div id="registerError" class="text-danger mt-2 text-center" style="display:none;"></div>
+            <div id="registerSuccess" class="text-success mt-2 text-center" style="display:none;"></div>
         </form>
     </div>
 </div>
@@ -99,15 +107,16 @@
 </style>
 
 <script>
-    document.getElementById('loginForm').onsubmit = async function(e) {
+    document.getElementById('registerForm').onsubmit = async function(e) {
         e.preventDefault();
         const form = e.target;
         const data = {
             username: form.username.value,
-            password: form.password.value
+            password: form.password.value,
+            role: form.role.value
         };
         try {
-            const res = await fetch('/api/login', {
+            const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
@@ -116,22 +125,42 @@
                 body: JSON.stringify(data)
             });
             const result = await res.json();
-            if(result.status === 'success') {
-                localStorage.setItem('token_sakti', result.data.token);
-                localStorage.setItem('user', JSON.stringify(result.data.user));
+            
+            document.getElementById('registerError').style.display = 'none';
+            document.getElementById('registerSuccess').style.display = 'none';
+            
+            // Laravel validation errors might be returned directly when Accept is application/json
+            if(res.status === 422) {
+                let errorMsg = 'Pendaftaran gagal.';
+                if (result.errors) {
+                    const firstError = Object.values(result.errors)[0];
+                    if (Array.isArray(firstError)) {
+                        errorMsg = firstError[0];
+                    }
+                }
+                document.getElementById('registerError').innerText = errorMsg;
+                document.getElementById('registerError').style.display = 'block';
+                return;
+            }
+
+            if(result.status === 'success' || res.status === 200 || res.status === 201) {
+                document.getElementById('registerSuccess').innerText = result.message || 'Pendaftaran berhasil! Mengalihkan ke halaman login...';
+                document.getElementById('registerSuccess').style.display = 'block';
                 
                 // Effect transition before redirect
-                document.getElementById('loginContainer').classList.add('modern-exit');
                 setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 800);
+                    document.getElementById('loginContainer').classList.add('modern-exit');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 800);
+                }, 1500);
             } else {
-                document.getElementById('loginError').innerText = result.message || 'Login gagal';
-                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('registerError').innerText = result.message || 'Pendaftaran gagal.';
+                document.getElementById('registerError').style.display = 'block';
             }
         } catch (error) {
-            document.getElementById('loginError').innerText = 'Terjadi kesalahan sistem: ' + error.message;
-            document.getElementById('loginError').style.display = 'block';
+            document.getElementById('registerError').innerText = 'Terjadi kesalahan sistem: ' + error.message;
+            document.getElementById('registerError').style.display = 'block';
         }
     };
 

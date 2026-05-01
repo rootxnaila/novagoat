@@ -57,15 +57,26 @@
             </div> 
         </div> 
     </div> 
+            <div class="mt-4">
+                <button class="btn btn-warning px-4" onclick="window.location.href='/katalog/edit/' + currentId">
+                    <i class="bi bi-pencil-square"></i> Edit
+                </button>
+                <button class="btn btn-danger px-4 d-none" id="btnHapusKambing" onclick="deleteKambing()">
+                    <i class="bi bi-trash"></i> Hapus
+                </button>
+            </div>
+        </div>
 
-    <div class="row mt-5"> 
-        <div class="col-md-7"> 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white fw-bold">
-                    <i class="bi bi-graph-up"></i> Grafik Pertumbuhan Berat
-                </div>
-                <div class="card-body">
-                    <canvas id="grafikBerat" style="max-height: 300px;"></canvas>
+        <div class="row mt-5">
+            <div class="col-md-7">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white fw-bold">
+                        <i class="bi bi-graph-up"></i> Grafik Pertumbuhan Berat
+                    </div>
+                    <div class="card-body">
+                        <canvas id="grafikBerat" style="max-height: 300px;"></canvas>
+                    </div>
+>>>>>>> 0a471a3252ea1e6764c2b56fd411faab2f5db6c3
                 </div>
             </div>
         </div> 
@@ -100,6 +111,16 @@
     const currentId = window.location.pathname.split('/').pop();
 
     document.addEventListener("DOMContentLoaded", function() {
+
+        // Security Role: tombol Hapus hanya muncul untuk Admin
+        const _u = localStorage.getItem('user');
+        if (_u) {
+            const _uObj = JSON.parse(_u);
+            if (_uObj.role === 'Admin') {
+                const btnDel = document.getElementById('btnHapusKambing');
+                if (btnDel) btnDel.classList.remove('d-none');
+            }
+        }
         
         //fetch detail utama
         fetch(`/api/kambing/${currentId}`)
@@ -179,12 +200,24 @@
     }); 
 
     function deleteKambing() {
-        if(confirm('Hapus data ini?')) {
-            fetch(`/api/kambing/${currentId}`, { method: 'DELETE' })
-                .then(() => {
+        if(confirm('Yakin hapus data kambing ini? Tindakan tidak bisa dibatalkan!')) {
+            const token = localStorage.getItem('token_sakti');
+            fetch(`/api/kambing/${currentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (res.ok) {
                     alert('Berhasil dihapus!');
                     window.location.href = '/katalog';
-                });
+                } else {
+                    res.json().then(err => alert('Gagal: ' + (err.message || 'Tidak memiliki izin.')));
+                }
+            })
+            .catch(() => alert('Kesalahan jaringan.'));
         }
     }
 </script>

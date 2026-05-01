@@ -11,8 +11,8 @@
         <ul class="nav-links" id="mainNav">
             <li><a href="/dashboard" onclick="moveActive(this)">Dashboard</a></li>
             <li><a href="/katalog" onclick="moveActive(this)">Monitoring Kambing</a></li>
-            <li><a href="#" onclick="moveActive(this)">Penggemukan</a></li>
-            <li id="medicalNav" style="display:none;"><a href="/admin/medis" onclick="moveActive(this)">Medical Schedule</a></li>
+            <li><a href="/admin/medis" onclick="moveActive(this)">Perawatan & Medis</a></li>
+            <li id="manajemenNav" style="display:none;"><a href="/admin/karyawan" onclick="moveActive(this)">Manajemen Karyawan</a></li>
             <div class="nav-indicator"></div>
         </ul>
     </nav>
@@ -49,7 +49,6 @@
     </div>
 </div>
 <script>
-    // Sidebar/Topbar user logic
     document.addEventListener('DOMContentLoaded', function() {
         const user = localStorage.getItem('user');
         if(user) {
@@ -58,18 +57,23 @@
             document.getElementById('usernameDisplay').innerText = userObj.username || 'User';
             
             const roleEl = document.getElementById('roleDisplay');
-            if (roleEl) roleEl.innerText = userObj.role || 'Admin';
+            if (roleEl) roleEl.innerText = userObj.role || '-';
 
+            // ADMIN ONLY: tampilkan menu Manajemen Karyawan
             if(userObj.role === 'Admin') {
-                const mn = document.getElementById('medicalNav');
+                const mn = document.getElementById('manajemenNav');
                 if(mn) mn.style.display = '';
             }
+
+            // Simpan role secara global untuk dipakai halaman lain (hide tombol delete)
+            window.__userRole = userObj.role;
         }
+
         const logoutBtn = document.getElementById('logoutBtn');
         if(logoutBtn) {
             logoutBtn.onclick = function(e) {
                 e.preventDefault();
-                localStorage.removeItem('token_sakti');
+                localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.location.href = '/login';
             };

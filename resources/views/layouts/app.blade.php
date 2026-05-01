@@ -153,7 +153,7 @@
 
             // Frontend route guard: redirect to /login when token missing for protected pages
             document.addEventListener('DOMContentLoaded', function() {
-                const token = localStorage.getItem('token_sakti');
+                const token = localStorage.getItem('token');
                 const hasToken = Boolean(token) && token !== 'null' && token !== 'undefined' && String(token).trim() !== '';
                 const path = window.location.pathname;
                 const protectedPrefixes = ['/dashboard','/medis','/katalog','/admin'];

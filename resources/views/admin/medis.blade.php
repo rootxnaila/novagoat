@@ -144,7 +144,7 @@
         const jadwalList = document.getElementById('jadwalList');
 
         const authHeaders = {
-            'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
@@ -294,16 +294,15 @@
         });
 
         window.updateStatus = async (id) => {
-            if (confirm('Apakah vaksin / tindakan medis ini sudah dilakukan? Jika iya, jadwal ini akan dihapus dari daftar.')) {
+            if (confirm('Apakah vaksin / tindakan medis ini sudah dilakukan?')) {
                 try {
-                    // 1. Kirim perintah hapus ke database
+                    // PATCH = ubah status jadi 'Selesai' (bisa Admin & Anak Kandang)
                     const response = await fetch(`/api/jadwal-medis/${id}`, { 
-                        method: 'DELETE', 
+                        method: 'PATCH', 
                         headers: authHeaders 
                     });
                     
                     if (response.ok) {
-                        // 2. Langsung hapus elemen dari layar secara instan (UI feedback)
                         const element = document.getElementById(`jadwal-${id}`);
                         if (element) {
                             element.style.transition = "all 0.3s ease";
@@ -311,7 +310,6 @@
                             element.style.transform = "translateX(20px)";
                             setTimeout(() => {
                                 element.remove();
-                                // Cek jika sudah kosong tampilkan pesan "Tidak ada jadwal"
                                 if (jadwalList.children.length === 0) {
                                     jadwalList.innerHTML = '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
                                 }
@@ -319,11 +317,11 @@
                         }
                     } else {
                         const errData = await response.json();
-                        alert('Gagal menghapus: ' + (errData.message || 'Error tidak dikenal'));
+                        alert('Gagal: ' + (errData.message || 'Error tidak dikenal'));
                     }
                 } catch(e) { 
                     console.error("Gagal update status:", e);
-                    alert('Terjadi kesalahan koneksi saat mencoba menghapus.');
+                    alert('Kesalahan koneksi.');
                 }
             }
         };

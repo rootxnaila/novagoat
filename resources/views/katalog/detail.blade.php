@@ -7,29 +7,43 @@
         <p>Sedang mengambil data medis kambing...</p>
     </div>
 
-    <div class="row d-none" id="content-detail">
-        <div class="col-md-5">
+    <div class="row d-none" id="content-detail"> 
+        <div class="col-md-5"> 
             <img src="{{ asset('images/foto_kambing.jpg') }}" class="img-fluid rounded shadow-sm border" alt="Foto Kambing">
-        </div>
-        <div class="col-md-7">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 id="kambing-nama" class="display-5 fw-bold"></h1>
-                <span id="kambing-status" class="badge p-2"></span>
+        </div> 
+
+        <div class="col-md-7"> 
+            <div class="d-flex justify-content-between align-items-start"> 
+                <div> 
+                    <h1 id="kambing-nama" class="display-5 fw-bold mb-2"></h1> 
+                    <span id="kambing-status" class="badge p-2"></span> 
+                </div>
+                @if(Auth::user() && Auth::user()->role === 'admin') 
+                <div> /
+                    <button class="btn btn-warning btn-sm me-2" onclick="window.location.href='/katalog/edit/' + currentId"> 
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </button> 
+                    <button class="btn btn-danger btn-sm" onclick="deleteKambing()"> 
+                        <i class="bi bi-trash"></i> Hapus
+                    </button> 
+                </div>
+                @endif 
             </div>
-            <hr>
-            <div class="row mb-4">
-                <div class="col-6">
+            <hr> 
+
+            <div class="row mb-4"> 
+                <div class="col-6"> 
                     <p class="text-muted mb-0">Jenis/Ras</p>
                     <h5 id="kambing-jenis">-</h5>
                 </div>
-                <div class="col-6">
+                <div class="col-6"> 
                     <p class="text-muted mb-0">Berat Awal</p>
                     <h5 id="kambing-berat">-</h5>
                 </div>
-            </div>
+            </div> 
 
             <h5 class="fw-bold"><i class="bi bi-clipboard2-pulse"></i> Riwayat & Catatan Medis</h5>
-            <div class="table-responsive">
+            <div class="table-responsive"> 
                 <table class="table table-hover border">
                     <thead class="table-light">
                         <tr>
@@ -38,15 +52,16 @@
                         </tr>
                     </thead>
                     <tbody id="kambing-info-tabel">
-                        </tbody>
+                    </tbody>
                 </table>
-            </div>
-
+            </div> 
+        </div> 
+    </div> 
             <div class="mt-4">
                 <button class="btn btn-warning px-4" onclick="window.location.href='/katalog/edit/' + currentId">
                     <i class="bi bi-pencil-square"></i> Edit
                 </button>
-                <button class="btn btn-danger px-4" onclick="deleteKambing()">
+                <button class="btn btn-danger px-4 d-none" id="btnHapusKambing" onclick="deleteKambing()">
                     <i class="bi bi-trash"></i> Hapus
                 </button>
             </div>
@@ -61,29 +76,33 @@
                     <div class="card-body">
                         <canvas id="grafikBerat" style="max-height: 300px;"></canvas>
                     </div>
+>>>>>>> 0a471a3252ea1e6764c2b56fd411faab2f5db6c3
                 </div>
             </div>
-            <div class="col-md-5">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-dark text-white fw-bold">
-                        <i class="bi bi-list-ul"></i> Riwayat Timbangan
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tanggal</th>
-                                    <th>Berat</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabel-riwayat-berat">
-                                </tbody>
-                        </table>
-                    </div>
+        </div> 
+
+        <div class="col-md-5"> 
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center"> 
+                    <span><i class="bi bi-list-ul"></i> Riwayat Timbangan</span> 
+                    <button class="btn btn-info btn-sm text-white" onclick="alert('Ini nanti buka modal Naufal!')"> 
+                    </button> 
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Berat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-riwayat-berat">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
-    </div>
+        </div> 
+    </div> 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -92,8 +111,18 @@
     const currentId = window.location.pathname.split('/').pop();
 
     document.addEventListener("DOMContentLoaded", function() {
+
+        // Security Role: tombol Hapus hanya muncul untuk Admin
+        const _u = localStorage.getItem('user');
+        if (_u) {
+            const _uObj = JSON.parse(_u);
+            if (_uObj.role === 'Admin') {
+                const btnDel = document.getElementById('btnHapusKambing');
+                if (btnDel) btnDel.classList.remove('d-none');
+            }
+        }
         
-        //1. FETCH DETAIL UTAMA
+        //fetch detail utama
         fetch(`/api/kambing/${currentId}`)
             .then(res => res.json())
             .then(result => {
@@ -120,7 +149,7 @@
                 document.getElementById('content-detail').classList.remove('d-none');
             });
 
-        // --- 2. FETCH RIWAYAT BERAT
+        //fetch riwayat berat
         fetch(`/api/grafik-berat/${currentId}`)
             .then(res => res.json())
             .then(result => {
@@ -171,12 +200,24 @@
     }); 
 
     function deleteKambing() {
-        if(confirm('Hapus data ini?')) {
-            fetch(`/api/kambing/${currentId}`, { method: 'DELETE' })
-                .then(() => {
+        if(confirm('Yakin hapus data kambing ini? Tindakan tidak bisa dibatalkan!')) {
+            const token = localStorage.getItem('token_sakti');
+            fetch(`/api/kambing/${currentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => {
+                if (res.ok) {
                     alert('Berhasil dihapus!');
                     window.location.href = '/katalog';
-                });
+                } else {
+                    res.json().then(err => alert('Gagal: ' + (err.message || 'Tidak memiliki izin.')));
+                }
+            })
+            .catch(() => alert('Kesalahan jaringan.'));
         }
     }
 </script>

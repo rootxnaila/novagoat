@@ -30,9 +30,7 @@
                 </div>
             </div>
             <button type="submit" class="btn btn-warning w-100 fw-bold py-2 mt-2 btn-animate" style="border-radius: 10px; background: #f5af19; border: none; color: #000; position: relative; overflow: hidden;">Masuk</button>
-            <div class="text-center mt-3">
-                <a href="/register" class="text-light opacity-75 hover-opacity-100" style="text-decoration: none; font-size: 0.85rem; transition: 0.3s;">Belum punya akun? Daftar di sini</a>
-            </div>
+
             <div id="loginError" class="text-danger mt-2 text-center" style="display:none;"></div>
         </form>
     </div>
@@ -117,7 +115,7 @@
             });
             const result = await res.json();
             if(result.status === 'success') {
-                localStorage.setItem('token_sakti', result.data.token);
+                localStorage.setItem('token', result.data.token);
                 localStorage.setItem('user', JSON.stringify(result.data.user));
                 
                 // Effect transition before redirect

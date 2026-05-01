@@ -117,7 +117,7 @@
             });
             const result = await res.json();
             if(result.status === 'success') {
-                localStorage.setItem('token_sakti', result.data.token);
+                localStorage.setItem('token', result.data.token);
                 localStorage.setItem('user', JSON.stringify(result.data.user));
                 
                 // Effect transition before redirect

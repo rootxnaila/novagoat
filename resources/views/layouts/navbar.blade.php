@@ -69,7 +69,7 @@
         if(logoutBtn) {
             logoutBtn.onclick = function(e) {
                 e.preventDefault();
-                localStorage.removeItem('token_sakti');
+                localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.location.href = '/login';
             };

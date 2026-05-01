@@ -144,7 +144,7 @@
         const jadwalList = document.getElementById('jadwalList');
 
         const authHeaders = {
-            'Authorization': `Bearer ${localStorage.getItem('token_sakti')}`,
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };

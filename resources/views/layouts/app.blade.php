@@ -8,7 +8,12 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #000; color: white; overflow: hidden; }
+        body { font-family: 'Poppins', sans-serif; background: #000; color: white; }
+        
+        .main-content-padded { padding-top: 110px; min-height: 100vh; }
+        .main-content-full { height: 100vh; overflow: hidden; }
+        
+        body.login-page { overflow: hidden; }
 
         .header-nav {
             position: fixed;
@@ -25,7 +30,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 35px;
+            padding: 20px 35px;
             z-index: 1000;
         }
 
@@ -34,17 +39,17 @@
         .logo-text-stack { display: flex; flex-direction: column; line-height: 1.1; }
         .logo-main { color: white; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
         .logo-sub { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; position: relative; }
-        .nav-links li { z-index: 2; }
+        .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; position: relative; margin: 0; padding: 0; }
+        .nav-links li { z-index: 2; margin: 0; padding: 0; }
         .nav-links a { 
             text-decoration: none; color: rgba(255, 255, 255, 0.8); 
             font-size: 0.85rem; padding: 10px 20px; display: block;
-            transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: color 0.4s ease;
         }
         .nav-links a.active { color: #000; }
         .nav-indicator {
             position: absolute; background: #fff; border-radius: 25px; z-index: 1;
-            transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
         .search-wrapper {
@@ -93,10 +98,14 @@
         .search-wrapper.active .close-search { display: block; }
     </style>
 </head>
-<body>
+<body class="{{ Request::is('login*') || Request::is('register*') ? 'login-page' : '' }}">
 
+    {{-- NAVBAR only when NOT on login page, NOT on register page, and NOT on welcome page --}}
+    @if(!Request::is('login*') && !Request::is('register*') && !Request::is('/'))
         @include('layouts.navbar')
-        <main style="padding-top: 100px; height: 100vh; overflow-y: auto; padding-bottom: 50px;">
+    @endif
+
+    <main class="{{ (!Request::is('login*') && !Request::is('register*') && !Request::is('/')) ? 'main-content-padded' : 'main-content-full' }}">
         @yield('content')
     </main>
         <script>
@@ -125,9 +134,42 @@
             }
 
             window.onload = function() {
-                const dash = document.querySelector('.nav-links a');
-                if(dash) moveActive(dash);
+                const currentPath = window.location.pathname;
+                const links = document.querySelectorAll('.nav-links a');
+                let found = false;
+                links.forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href !== '#' && currentPath.startsWith(href)) {
+                        moveActive(link);
+                        found = true;
+                    }
+                });
+                
+                // Default to first link if none matches
+                if(!found && links.length > 0) {
+                    moveActive(links[0]);
+                }
             };
+
+            // Frontend route guard: redirect to /login when token missing for protected pages
+            document.addEventListener('DOMContentLoaded', function() {
+                const token = localStorage.getItem('token_sakti');
+                const hasToken = Boolean(token) && token !== 'null' && token !== 'undefined' && String(token).trim() !== '';
+                const path = window.location.pathname;
+                const protectedPrefixes = ['/dashboard','/medis','/katalog','/admin'];
+                const isProtected = protectedPrefixes.some(p => path === p || path.startsWith(p + '/') || path.includes(p));
+
+                if (isProtected && !hasToken) {
+                    window.location.replace('/login');
+                    return;
+                }
+
+                if ((path === '/login' || path === '/register' || path === '/') && hasToken) {
+                    window.location.replace('/dashboard');
+                    return;
+                }
+            });
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>

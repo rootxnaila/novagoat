@@ -26,7 +26,7 @@
     </div>
     @endif
     <div id="userDropdown" class="dropdown" style="display:none;">
-        <button class="btn btn-dark rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Akun" style="width: 38px; height: 38px; border: 1px solid rgba(255,255,255,0.2);">
+        <button class="btn rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Akun" style="width: 38px; height: 38px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
             </svg>

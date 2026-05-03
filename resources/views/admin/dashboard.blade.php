@@ -3,135 +3,120 @@
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
-    body {
-        background-color: #121417; 
-        background-image: 
-            radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
-            radial-gradient(at 100% 0%, rgba(220, 38, 38, 0.1) 0px, transparent 50%);
-        min-height: 100vh;
-        font-family: 'Inter', sans-serif;
+    /* palette novagoat */
+    :root {
+        --dark-green: #1B4D1E;
+        --medium-green: #2E7D32;
+        --button-green: #3D7A40;
+        --light-green: #A5C8A7;
+        --pale-mint: #D6EDD7;
+        --card-white: #FFFFFF;
+        --page-bg: #E8EDEA;
+        --icon-circle: #C8DAC9;
+        --shadow-muted: #B0BEB1;
+        --heading-text: #1A2E1A;
+        --sub-text: #4A6B4C;
+        --border-divider: #D0DDD1;
     }
 
-    .dashboard-container {
-        margin-top: 120px;
-        padding-bottom: 60px;
-    }
+    body { background-color: var(--page-bg) !important; }
 
-    .header-section h2 {
-        color: #ffffff;
-        font-weight: 700;
-        letter-spacing: -0.5px;
+    .metric-card {
+        background: var(--card-white);
+        border-radius: 16px;
+        border-left: 6px solid var(--medium-green);
+        box-shadow: 0 4px 12px rgba(176, 190, 177, 0.4);
+        transition: transform 0.3s ease;
     }
-
-    .header-section p {
-        color: #94a3b8;
+    .metric-card:hover { transform: translateY(-5px); }
+    
+    .card-title-nova { color: var(--sub-text); font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;}
+    .card-value-nova { font-size: 2.5rem; font-weight: 800; color: var(--heading-text); }
+    
+    .chart-container {
+        background: var(--card-white);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(176, 190, 177, 0.4);
+        border: 1px solid var(--border-divider);
     }
-
-    /* Efek Glassmorphism pada Card */
-    .card-glass {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 24px;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .card-glass:hover {
-        background: rgba(255, 255, 255, 0.06);
-        transform: translateY(-10px);
-        border-color: rgba(255, 255, 255, 0.1);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .stat-label {
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: 600;
-        margin-bottom: 10px;
-        display: block;
-    }
-
-    .stat-number {
-        font-size: 3.5rem;
-        font-weight: 800;
-        color: #ffffff;
-        line-height: 1;
-    }
-
-    /* Dekorasi Lingkaran Warna di dalam Card */
-    .glow-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-        box-shadow: 0 0 10px currentColor;
-    }
-
+    
     .icon-box {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        margin-bottom: 20px;
     }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container dashboard-container">
-    <div class="header-section mb-5">
-        <h2>Dashboard Monitoring</h2>
-        <p>Ringkasan sistem manajemen peternakan Novagoat.</p>
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold" style="color: var(--heading-text);">Halo Bos, <span id="namaBos">Admin</span>!</h2>
+            <p class="fw-medium" style="color: var(--dark-green); opacity: 0.75;">Ini ringkasan kondisi Peternakan Pak Tarno hari ini.</p>
+        </div>
     </div>
 
-    <div class="row">
-        <!-- Total Kambing -->
-        <div class="col-md-4 mb-4">
-            <div class="card card-glass h-100">
-                <div class="card-body p-4">
-                    <div class="icon-box text-primary">
+    <!-- 4 Kotak Metrik Utama -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="metric-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card-title-nova">Total Kambing</div>
+                    <div class="icon-box" style="background-color: var(--pale-mint); color: var(--dark-green);">
                         <i class="bi bi-grid-1x2-fill"></i>
                     </div>
-                    <span class="stat-label text-primary">
-                        <span class="glow-dot bg-primary"></span>Total Kambing
-                    </span>
-                    <p id="total-kambing" class="stat-number">0</p>
                 </div>
+                <div class="card-value-nova" id="val-kambing">0</div>
             </div>
         </div>
-
-        <!-- Kambing Sakit -->
-        <div class="col-md-4 mb-4">
-            <div class="card card-glass h-100">
-                <div class="card-body p-4">
-                    <div class="icon-box text-danger">
+        <div class="col-md-3">
+            <div class="metric-card p-4" style="border-left-color: #e74c3c;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card-title-nova text-danger">Sakit/Rawat</div>
+                    <div class="icon-box" style="background-color: #fdeaea; color: #e74c3c;">
                         <i class="bi bi-heart-pulse-fill"></i>
                     </div>
-                    <span class="stat-label text-danger">
-                        <span class="glow-dot bg-danger"></span>Kambing Sakit
-                    </span>
-                    <p id="kambing-sakit" class="stat-number">0</p>
                 </div>
+                <div class="card-value-nova" id="val-sakit">0</div>
             </div>
         </div>
-
-        <!-- Jadwal Suntik -->
-        <div class="col-md-4 mb-4">
-            <div class="card card-glass h-100">
-                <div class="card-body p-4">
-                    <div class="icon-box text-success">
-                        <i class="bi bi-calendar2-check-fill"></i>
+        <div class="col-md-3">
+            <div class="metric-card p-4" style="border-left-color: #f39c12;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card-title-nova text-warning">Jadwal Medis</div>
+                    <div class="icon-box" style="background-color: #fef5e7; color: #f39c12;">
+                        <i class="bi bi-calendar-event-fill"></i>
                     </div>
-                    <span class="stat-label text-success">
-                        <span class="glow-dot bg-success"></span>Jadwal Suntik
-                    </span>
-                    <p id="jadwal-suntik" class="stat-number">0</p>
                 </div>
+                <div class="card-value-nova" id="val-jadwal">...</div> <!-- Angka dummy medis sementara -->
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card p-4" style="border-left-color: #3498db;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="card-title-nova text-info">Anak Kandang</div>
+                    <div class="icon-box" style="background-color: #ebf5fb; color: #3498db;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="card-value-nova" id="val-pekerja">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- grafik karyawan -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0" style="color: var(--heading-text);"><i class="bi bi-bar-chart-line-fill me-2" style="color: var(--medium-green);"></i> Grafik Kinerja Anak Kandang</h5>
+                </div>
+                <canvas id="kinerjaChart" height="80"></canvas>
             </div>
         </div>
     </div>
@@ -140,35 +125,98 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const token = localStorage.getItem('token');
-        const userString = localStorage.getItem('user'); // Ambil data user
+        const userString = localStorage.getItem('user');
         
-        if (!token || !userString) { //cek login
-            alert('Silakan login terlebih dahulu!');
+        //security script
+        if (!token || !userString) {
             window.location.href = '/login';
             return;
         }
 
-        const user = JSON.parse(userString);//cek apa admin
+        const user = JSON.parse(userString);
         if (user.role !== 'admin') {
-            alert('Akses Ditolak! Halaman Dashboard hanya untuk Admin.');
-            window.location.href = '/katalog'; //tendang ke katalog
+            window.location.href = '/katalog';
             return;
         }
-        fetch('/api/dashboard/stats', { 
+
+        document.getElementById('namaBos').innerText = user.username;
+
+        fetch('/api/kambing', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                document.getElementById('val-kambing').innerText = result.data.length;
+                const sakit = result.data.filter(k => k.status_kondisi !== 'Sehat').length;
+                document.getElementById('val-sakit').innerText = sakit;
+            }
+        });
+
+        fetch('/api/karyawan/kinerja', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})//fetch data utk grafik 
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                const pekerja = result.data;
+                document.getElementById('val-pekerja').innerText = pekerja.length;
+
+                //ekstrak data chart
+                const labels = pekerja.map(p => p.username);
+                const dataTimbang = pekerja.map(p => p.log_berat_count);
+                const dataMedis = pekerja.map(p => p.jadwal_medis_count);
+
+                const ctx = document.getElementById('kinerjaChart').getContext('2d'); //render grafik bar
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Input Berat Kambing',
+                                data: dataTimbang,
+                                backgroundColor: '#A5C8A7',
+                                borderRadius: 6
+                            },
+                            {
+                                label: 'Tindakan Medis',
+                                data: dataMedis,
+                                backgroundColor: '#2E7D32', 
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { 
+                            legend: { position: 'top' } 
+                        },
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { precision: 0 } 
+                            } 
+                        }
+                    }
+                });
+            }
+        });
+        fetch('/api/jadwal-medis', { 
             headers: { 
-                'Authorization': 'Bearer ' + localStorage.getItem('token'), 
+                'Authorization': 'Bearer ' + token, 
                 'Accept': 'application/json' 
             }
-        }) 
-            .then(response => response.json()) 
-            .then(result => {
-                if(result.status === 'success' && result.data) { 
-                    document.getElementById('total-kambing').innerText = result.data.total_kambing; 
-                    document.getElementById('kambing-sakit').innerText = result.data.kambing_sakit; 
-                    document.getElementById('jadwal-suntik').innerText = result.data.jadwal_suntik; 
-                }
-            })
-            .catch(error => console.error('Waduh error:', error)); 
+        })
+        .then(res => res.json())
+        .then(result => {
+            if(result.status === 'success') {
+                // Hitung total jadwal medis dari database dan masukkan ke kotak
+                document.getElementById('val-jadwal').innerText = result.data.length;
+            } else {
+                document.getElementById('val-jadwal').innerText = '0';
+            }
+        })
+        .catch(error => {
+            console.error('API Error (Jadwal):', error);
+            document.getElementById('val-jadwal').innerText = '0';
+        });
     });
 </script>
 @endsection

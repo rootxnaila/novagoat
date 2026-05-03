@@ -1,103 +1,93 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    body { background-color: #121417; color: white; min-height: 100vh; }
+    .dashboard-container { margin-top: 100px; padding-bottom: 60px; }
+    .card-glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .table { color: white !important; }
+    .table-light { background-color: rgba(255, 255, 255, 0.1) !important; color: white !important; }
+</style>
+
+<div class="container dashboard-container">
     <div id="loading-detail" class="text-center">
         <div class="spinner-border text-primary" role="status"></div>
-        <p>Sedang mengambil data medis kambing...</p>
     </div>
 
     <div class="row d-none" id="content-detail"> 
-        <div class="col-md-5"> 
-            <img src="{{ asset('images/foto_kambing.jpg') }}" class="img-fluid rounded shadow-sm border" alt="Foto Kambing">
+        <div class="col-md-5 mb-4"> 
+            <img src="{{ asset('images/foto_kambing.jpg') }}" class="img-fluid rounded-4 shadow" alt="Kambing">
         </div> 
 
         <div class="col-md-7"> 
-            <div class="d-flex justify-content-between align-items-start"> 
+            <div class="d-flex justify-content-between align-items-center mb-3"> 
                 <div> 
-                    <h1 id="kambing-nama" class="display-5 fw-bold mb-2"></h1> 
+                    <h1 id="kambing-nama" class="display-5 fw-bold mb-1 text-white"></h1> 
                     <span id="kambing-status" class="badge p-2"></span> 
                 </div>
-                @if(Auth::user() && Auth::user()->role === 'admin') 
-                <div> /
-                    <button class="btn btn-warning btn-sm me-2" onclick="window.location.href='/katalog/edit/' + currentId"> 
-                        <i class="bi bi-pencil-square"></i> Edit
-                    </button> 
-                    <button class="btn btn-danger btn-sm" onclick="deleteKambing()"> 
-                        <i class="bi bi-trash"></i> Hapus
-                    </button> 
+
+                <div class="d-flex gap-2">
+                    {{-- TOMBOL EDIT: Muncul untuk semua yang login --}}
+                    @if(Auth::check())
+                        <button class="btn btn-warning btn-sm fw-bold px-3 shadow-sm" onclick="window.location.href='/katalog/edit/' + currentId"> 
+                            <i class="bi bi-pencil-square"></i> EDIT
+                        </button> 
+
+                        {{-- TOMBOL HAPUS: Hanya muncul jika role benar-benar 'admin' --}}
+                        @if(strtolower(Auth::user()->role) == 'admin')
+                            <button class="btn btn-danger btn-sm fw-bold px-3 shadow-sm" onclick="deleteKambing()"> 
+                                <i class="bi bi-trash"></i> HAPUS
+                            </button> 
+                        @endif
+                    @else
+                        {{-- Muncul jika kamu belum login --}}
+                        <a href="/login" class="btn btn-outline-info btn-sm">Login untuk Edit</a>
+                    @endif
                 </div>
-                @endif 
             </div>
-            <hr> 
+            <hr class="opacity-25"> 
 
             <div class="row mb-4"> 
                 <div class="col-6"> 
-                    <p class="text-muted mb-0">Jenis/Ras</p>
-                    <h5 id="kambing-jenis">-</h5>
+                    <p class="text-muted mb-0 small fw-bold">JENIS/RAS</p>
+                    <h5 id="kambing-jenis" class="text-white">-</h5>
                 </div>
                 <div class="col-6"> 
-                    <p class="text-muted mb-0">Berat Awal</p>
-                    <h5 id="kambing-berat">-</h5>
+                    <p class="text-muted mb-0 small fw-bold">BERAT AWAL</p>
+                    <h5 id="kambing-berat" class="text-white">-</h5>
                 </div>
             </div> 
 
-            <h5 class="fw-bold"><i class="bi bi-clipboard2-pulse"></i> Riwayat & Catatan Medis</h5>
-            <div class="table-responsive"> 
-                <table class="table table-hover border">
+            <div class="table-responsive card-glass"> 
+                <table class="table table-hover mb-0">
                     <thead class="table-light">
-                        <tr>
-                            <th>Parameter</th>
-                            <th>Keterangan</th>
-                        </tr>
+                        <tr><th>Parameter</th><th>Keterangan</th></tr>
                     </thead>
-                    <tbody id="kambing-info-tabel">
-                    </tbody>
+                    <tbody id="kambing-info-tabel"></tbody>
                 </table>
             </div> 
         </div> 
     </div> 
-            <div class="mt-4">
-                <button class="btn btn-warning px-4" onclick="window.location.href='/katalog/edit/' + currentId">
-                    <i class="bi bi-pencil-square"></i> Edit
-                </button>
-                <button class="btn btn-danger px-4 d-none" id="btnHapusKambing" onclick="deleteKambing()">
-                    <i class="bi bi-trash"></i> Hapus
-                </button>
+    
+    {{-- Grafik dan Riwayat --}}
+    <div class="row mt-5">
+        <div class="col-md-7 mb-4">
+            <div class="card card-glass h-100 border-0">
+                <div class="card-body"><canvas id="grafikBerat" style="max-height: 250px;"></canvas></div>
             </div>
         </div>
-
-        <div class="row mt-5">
-            <div class="col-md-7">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white fw-bold">
-                        <i class="bi bi-graph-up"></i> Grafik Pertumbuhan Berat
-                    </div>
-                    <div class="card-body">
-                        <canvas id="grafikBerat" style="max-height: 300px;"></canvas>
-                    </div>
->>>>>>> 0a471a3252ea1e6764c2b56fd411faab2f5db6c3
+        <div class="col-md-5 mb-4"> 
+            <div class="card card-glass h-100 border-0">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center"> 
+                    <span>Riwayat Timbangan</span> 
+                    <button class="btn btn-info btn-sm text-white fw-bold shadow-sm" onclick="alert('Input Berat')">Input Berat</button> 
                 </div>
-            </div>
-        </div> 
-
-        <div class="col-md-5"> 
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white fw-bold d-flex justify-content-between align-items-center"> 
-                    <span><i class="bi bi-list-ul"></i> Riwayat Timbangan</span> 
-                    <button class="btn btn-info btn-sm text-white" onclick="alert('Ini nanti buka modal Naufal!')"> 
-                    </button> 
-                </div>
-                <div class="card-body p-0">
+                <div class="card-body p-0 text-center">
                     <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tanggal</th>
-                                <th>Berat</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-riwayat-berat">
-                        </tbody>
+                        <thead class="table-light"><tr><th>Tanggal</th><th>Berat</th></tr></thead>
+                        <tbody id="tabel-riwayat-berat"></tbody>
                     </table>
                 </div>
             </div>
@@ -106,24 +96,13 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     const currentId = window.location.pathname.split('/').pop();
+    const token = localStorage.getItem('token_sakti');
+    const apiHeaders = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' };
 
     document.addEventListener("DOMContentLoaded", function() {
-
-        // Security Role: tombol Hapus hanya muncul untuk Admin
-        const _u = localStorage.getItem('user');
-        if (_u) {
-            const _uObj = JSON.parse(_u);
-            if (_uObj.role === 'Admin') {
-                const btnDel = document.getElementById('btnHapusKambing');
-                if (btnDel) btnDel.classList.remove('d-none');
-            }
-        }
-        
-        //fetch detail utama
-        fetch(`/api/kambing/${currentId}`)
+        fetch(`/api/kambing/${currentId}`, { headers: apiHeaders })
             .then(res => res.json())
             .then(result => {
                 if(result.status === 'success' && result.data) {
@@ -131,93 +110,43 @@
                     document.getElementById('kambing-nama').innerText = k.nama || 'Kambing';
                     document.getElementById('kambing-jenis').innerText = k.jenis || '-';
                     document.getElementById('kambing-berat').innerText = (k.berat_awal || 0) + ' kg';
-                    
-                    const statusBadge = document.getElementById('kambing-status');
-                    statusBadge.innerText = k.status_kondisi || 'Sehat';
-                    statusBadge.className = 'badge p-2 ' + (k.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger');
-
+                    const sb = document.getElementById('kambing-status');
+                    sb.innerText = (k.status_kondisi || 'Sehat').toUpperCase();
+                    sb.className = 'badge p-2 ' + (k.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger');
                     document.getElementById('kambing-info-tabel').innerHTML = `
                         <tr><td>ID Kambing</td><td>#${k.id_kambing}</td></tr>
-                        <tr><td>Status Medis</td><td>${k.status_kondisi || '-'}</td></tr>
-                        <tr><td>Catatan</td><td>Belum ada catatan medis.</td></tr>
-                    `;
+                        <tr><td>Kondisi Medis</td><td>${k.status_kondisi}</td></tr>`;
                 }
             })
-            .catch(err => console.error("Error Detail:", err))
             .finally(() => {
                 document.getElementById('loading-detail').classList.add('d-none');
                 document.getElementById('content-detail').classList.remove('d-none');
             });
 
-        //fetch riwayat berat
-        fetch(`/api/grafik-berat/${currentId}`)
+        fetch(`/api/grafik-berat/${currentId}`, { headers: apiHeaders })
             .then(res => res.json())
             .then(result => {
                 const tbody = document.getElementById('tabel-riwayat-berat');
-                const dataArr = result.data;
-
-                if (Array.isArray(dataArr) && dataArr.length > 0) {
-                    tbody.innerHTML = ''; 
-                    const tgls = [];
-                    const brts = [];
-
-                    dataArr.forEach(item => {
-                    
-                        let t = item.tanggal_timbang || '-'; 
-                        let b = item.berat_sekarang || 0;
-                        
-                        tgls.push(t);
-                        brts.push(b);
-
-                        tbody.innerHTML += `<tr><td>${t}</td><td><strong>${b} kg</strong></td></tr>`;
+                if (result.data && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    const labels = [], weights = [];
+                    result.data.forEach(item => {
+                        labels.push(item.tanggal_timbang); weights.push(item.berat_sekarang);
+                        tbody.innerHTML += `<tr><td>${item.tanggal_timbang}</td><td>${item.berat_sekarang} kg</td></tr>`;
                     });
-
-                    const ctx = document.getElementById('grafikBerat').getContext('2d');
-                    new Chart(ctx, {
+                    new Chart(document.getElementById('grafikBerat').getContext('2d'), {
                         type: 'line',
-                        data: {
-                            labels: tgls,
-                            datasets: [{
-                                label: 'Berat (kg)',
-                                data: brts,
-                                borderColor: '#0d6efd',
-                                tension: 0.3,
-                                fill: true,
-                                backgroundColor: 'rgba(13, 110, 253, 0.1)'
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: { y: { beginAtZero: false } }
-                        }
+                        data: { labels: labels, datasets: [{ label: 'Berat', data: weights, borderColor: '#0d6efd', fill: true, tension: 0.4 }] },
+                        options: { responsive: true, maintainAspectRatio: false }
                     });
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="2" class="text-center">Riwayat belum tersedia.</td></tr>';
                 }
-            })
-            .catch(err => console.error("Error Riwayat:", err));
-    }); 
+            });
+    });
 
     function deleteKambing() {
-        if(confirm('Yakin hapus data kambing ini? Tindakan tidak bisa dibatalkan!')) {
-            const token = localStorage.getItem('token_sakti');
-            fetch(`/api/kambing/${currentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            })
-            .then(res => {
-                if (res.ok) {
-                    alert('Berhasil dihapus!');
-                    window.location.href = '/katalog';
-                } else {
-                    res.json().then(err => alert('Gagal: ' + (err.message || 'Tidak memiliki izin.')));
-                }
-            })
-            .catch(() => alert('Kesalahan jaringan.'));
+        if(confirm('Hapus data ini secara permanen?')) {
+            fetch(`/api/kambing/${currentId}`, { method: 'DELETE', headers: apiHeaders })
+                .then(res => res.ok ? window.location.href = '/katalog' : alert('Gagal hapus.'));
         }
     }
 </script>

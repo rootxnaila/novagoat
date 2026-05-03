@@ -137,11 +137,13 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
-        const ctx = document.getElementById('medisChart').getContext('2d');
         const kambingSelect = document.getElementById('kambingSelect');
-        const formInputBerat = document.getElementById('formInputBerat');
-        const formJadwalMedis = document.getElementById('formJadwalMedis');
         const jadwalList = document.getElementById('jadwalList');
+        const stats = {
+            total: document.getElementById('statTotal'),
+            terakhir: document.getElementById('statTerakhir'),
+            avg: document.getElementById('statAvg')
+        };
 
         const authHeaders = {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -149,95 +151,76 @@
             'Accept': 'application/json'
         };
 
+        // Helper untuk Fetch API
+        const apiFetch = async (url, options = {}) => {
+            const res = await fetch(url, { ...options, headers: { ...authHeaders, ...options.headers } });
+            if (!res.ok) throw new Error(await res.text());
+            return res.json();
+        };
+
         // UI Loading States
-        document.getElementById('statTotal').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
-        document.getElementById('statTerakhir').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
-        document.getElementById('statAvg').innerHTML = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
-        jadwalList.innerHTML = '<p class="text-secondary text-center mt-4"><span class="spinner-border spinner-border-sm"></span> Memuat jadwal...</p>';
+        const spinner = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
+        Object.values(stats).forEach(el => el.innerHTML = spinner);
+        jadwalList.innerHTML = `<p class="text-secondary text-center mt-4">${spinner} Memuat jadwal...</p>`;
         kambingSelect.innerHTML = '<option disabled selected>Memuat data kambing...</option>';
 
         let medisChart = null;
         let pendingChartData = null;
 
         const tryInitChart = () => {
-            // Tunggu sampai Chart.js selesai didownload (karena pakai async)
-            if (typeof Chart === 'undefined') {
-                setTimeout(tryInitChart, 100);
-                return;
-            }
-            try {
-                medisChart = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: [], datasets: [{ 
-                        label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
-                    }]},
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
-                
-                // Jika data sudah tiba lebih dulu daripada Chart.js, langsung gambar
-                if (pendingChartData) {
-                    updateChart(pendingChartData);
-                }
-            } catch(e) {
-                console.error("Gagal memuat Chart.js:", e);
-            }
+            if (typeof Chart === 'undefined') return setTimeout(tryInitChart, 100);
+            medisChart = new Chart(document.getElementById('medisChart').getContext('2d'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ 
+                    label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
+                }]},
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            if (pendingChartData) updateChart(pendingChartData);
         };
         tryInitChart();
 
         const updateChart = (data) => {
-            if (!medisChart) {
-                // Simpan data sementara jika Chart.js masih proses download
-                pendingChartData = data;
-                return;
-            }
+            if (!medisChart) return pendingChartData = data;
+            
             medisChart.data.labels = data.map(i => i.tanggal_timbang);
             medisChart.data.datasets[0].data = data.map(i => i.berat_sekarang);
             medisChart.update();
 
-            document.getElementById('statTotal').innerText = data.length;
-            document.getElementById('statTerakhir').innerText = data.length ? data[data.length-1].berat_sekarang + ' kg' : '-';
+            stats.total.innerText = data.length;
+            stats.terakhir.innerText = data.length ? data[data.length-1].berat_sekarang + ' kg' : '-';
             const avg = data.length ? (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1) : 0;
-            document.getElementById('statAvg').innerText = avg + ' kg';
+            stats.avg.innerText = avg + ' kg';
         };
 
         const loadChartData = async (id) => {
             try {
-                let res = await fetch(`/api/grafik-berat/${id}`);
-                res = await res.json();
+                const res = await apiFetch(`/api/grafik-berat/${id}`);
                 updateChart(res.data || []);
             } catch(e) { console.error("Gagal load grafik:", e); }
         };
 
-        const renderJadwal = (data) => {
-            // Filter jadwal yang belum selesai saja
-            const upcoming = data.filter(item => (item.status || '').toLowerCase() !== 'selesai');
-
-            jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
-            upcoming.forEach(item => {
-                // Gunakan id_jadwal karena itu primary key di database Anda
-                const id = item.id_jadwal || item.id; 
-                jadwalList.innerHTML += `
-                    <div class="p-3 mb-3 shadow-sm position-relative" id="jadwal-${id}" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid #00fbff;">
-                        <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal || '-'}</small>
-                        <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan || '-'}</h6>
-                        <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;" title="Tandai Selesai">✓</button>
-                    </div>
-                `;
-            });
-        };
-
         const loadJadwal = async () => {
             try {
-                let res = await fetch('/api/jadwal-medis', { headers: authHeaders });
-                res = await res.json();
-                renderJadwal(res.data || []);
+                const res = await apiFetch('/api/jadwal-medis');
+                const upcoming = (res.data || []).filter(item => (item.status || '').toLowerCase() !== 'selesai');
+                jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+                upcoming.forEach(item => {
+                    const id = item.id_jadwal || item.id; 
+                    jadwalList.innerHTML += `
+                        <div class="p-3 mb-3 shadow-sm position-relative" id="jadwal-${id}" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid #00fbff;">
+                            <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal || '-'}</small>
+                            <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan || '-'}</h6>
+                            <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;" title="Tandai Selesai">✓</button>
+                        </div>
+                    `;
+                });
             } catch(e) { console.error("Gagal load jadwal:", e); }
         };
 
         const loadKambing = async () => {
             try {
-                let res = await fetch('/api/kambing');
-                res = await res.json();
+                const res = await apiFetch('/api/kambing');
                 const list = res.data || [];
                 kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
                 list.forEach(k => {
@@ -247,86 +230,57 @@
                     kambingSelect.value = list[0].id_kambing;
                     loadChartData(list[0].id_kambing);
                 } else {
-                    updateChart([]); // Kosongkan chart jika tidak ada kambing
+                    updateChart([]);
                 }
             } catch(e) { console.error("Gagal load kambing:", e); }
         };
 
-        // Listeners
-        kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
+        // Form Handlers
+        const handleForm = (formId, url, method, onSuccess) => {
+            document.getElementById(formId).addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const id = kambingSelect.value;
+                if(!id) return alert('Pilih kambing terlebih dahulu!');
+                
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                if (formId === 'formJadwalMedis') data.id_kambing = id;
 
-        formInputBerat.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = kambingSelect.value;
-            if(!id) return alert('Pilih kambing terlebih dahulu!');
-
-            try {
-                await fetch(`/api/kambing/${id}/timbang`, {
-                    method: 'POST',
-                    headers: authHeaders,
-                    body: JSON.stringify({ berat: e.target.berat.value, tanggal: e.target.tanggal.value })
-                });
-                bootstrap.Modal.getInstance(document.getElementById('modalInputBerat')).hide();
-                formInputBerat.reset();
-                loadChartData(id);
-            } catch(e) { console.error("Gagal simpan berat:", e); }
-        });
-
-        formJadwalMedis.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const id = kambingSelect.value;
-            if(!id) return alert('Pilih kambing terlebih dahulu!');
-
-            try {
-                await fetch('/api/jadwal-medis', {
-                    method: 'POST',
-                    headers: authHeaders,
-                    body: JSON.stringify({ 
-                        id_kambing: id,
-                        jenis_tindakan: e.target.jenis_tindakan.value, 
-                        tanggal_rencana: e.target.tanggal_rencana.value 
-                    })
-                });
-                bootstrap.Modal.getInstance(document.getElementById('modalJadwalMedis')).hide();
-                formJadwalMedis.reset();
-                loadJadwal();
-            } catch(e) { console.error("Gagal simpan jadwal:", e); }
-        });
-
-        window.updateStatus = async (id) => {
-            if (confirm('Apakah vaksin / tindakan medis ini sudah dilakukan?')) {
                 try {
-                    // PATCH = ubah status jadi 'Selesai' (bisa Admin & Anak Kandang)
-                    const response = await fetch(`/api/jadwal-medis/${id}`, { 
-                        method: 'PATCH', 
-                        headers: authHeaders 
+                    await apiFetch(url.replace('{id}', id), {
+                        method: method,
+                        body: JSON.stringify(data)
                     });
-                    
-                    if (response.ok) {
-                        const element = document.getElementById(`jadwal-${id}`);
-                        if (element) {
-                            element.style.transition = "all 0.3s ease";
-                            element.style.opacity = "0";
-                            element.style.transform = "translateX(20px)";
-                            setTimeout(() => {
-                                element.remove();
-                                if (jadwalList.children.length === 0) {
-                                    jadwalList.innerHTML = '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
-                                }
-                            }, 300);
-                        }
-                    } else {
-                        const errData = await response.json();
-                        alert('Gagal: ' + (errData.message || 'Error tidak dikenal'));
-                    }
-                } catch(e) { 
-                    console.error("Gagal update status:", e);
-                    alert('Kesalahan koneksi.');
-                }
-            }
+                    bootstrap.Modal.getInstance(document.getElementById(e.target.closest('.modal').id)).hide();
+                    e.target.reset();
+                    onSuccess(id);
+                } catch(e) { console.error(`Gagal simpan ${formId}:`, e); }
+            });
         };
 
-        // Start Fetching Data
+        handleForm('formInputBerat', '/api/kambing/{id}/timbang', 'POST', loadChartData);
+        handleForm('formJadwalMedis', '/api/jadwal-medis', 'POST', loadJadwal);
+
+        kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
+
+        window.updateStatus = async (id) => {
+            if (!confirm('Apakah vaksin / tindakan medis ini sudah dilakukan?')) return;
+            try {
+                const res = await fetch(`/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders });
+                if (res.ok) {
+                    const el = document.getElementById(`jadwal-${id}`);
+                    if (el) {
+                        el.style.opacity = "0";
+                        el.style.transform = "translateX(20px)";
+                        setTimeout(() => {
+                            el.remove();
+                            if (!jadwalList.children.length) jadwalList.innerHTML = '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+                        }, 300);
+                    }
+                }
+            } catch(e) { console.error("Gagal update status:", e); }
+        };
+
         loadKambing();
         loadJadwal();
     });

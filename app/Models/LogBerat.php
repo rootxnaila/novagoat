@@ -13,6 +13,7 @@ class LogBerat extends Model
     protected $fillable = [
         'id_kambing',
         'berat_sekarang',
-        'tanggal_timbang'
+        'tanggal_timbang',
+        'id_user'
     ];
 }

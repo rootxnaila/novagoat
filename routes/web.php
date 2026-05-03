@@ -41,3 +41,7 @@ Route::get('/admin/medis-data', function () {
 Route::get('/login', function () {
     return view('auth.login');
 });
+
+Route::get('/admin/karyawan', function () { //route kinerja karyawan
+    return view('admin.karyawan'); 
+});

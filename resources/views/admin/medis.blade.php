@@ -90,7 +90,6 @@
             <select id="kambingSelect" class="form-select form-select-sm border-0 shadow-sm" style="width: 220px; background-color: var(--card-white); color: var(--heading-text); border-radius: 10px;">
                 <option value="" disabled selected>Pilih Kambing...</option>
             </select>
-            <button class="btn btn-nature btn-nature-secondary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalJadwalMedis">+ JADWAL MEDIS</button>
             <button class="btn btn-nature btn-nature-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
         </div>
     </div>
@@ -141,8 +140,9 @@
 
         <div class="col-lg-4">
             <div class="card card-nature shadow-sm h-100 animate-up delay-4" style="overflow: hidden;">
-                <div class="card-header py-3 border-0 text-center" style="background-color: var(--medium-green);">
+                <div class="card-header py-3 border-0 d-flex justify-content-between align-items-center" style="background-color: var(--medium-green);">
                     <h6 class="m-0 fw-bold text-white" style="font-size: 0.8rem;">AGENDA VAKSIN MENDATANG</h6>
+                    <button class="btn btn-sm btn-light fw-bold rounded-pill px-3 shadow-sm" style="font-size: 0.7rem; color: var(--dark-green);" data-bs-toggle="modal" data-bs-target="#modalJadwalMedis">+ TAMBAH</button>
                 </div>
                 <div id="jadwalList" class="card-body p-3 overflow-auto" style="max-height: 450px;"></div>
             </div>
@@ -189,6 +189,12 @@
             </div>
             <form id="formJadwalMedis">
                 <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">PILIH KAMBING</label>
+                        <select name="id_kambing" class="form-select" id="modalKambingSelect" style="background-color: var(--input-bg);" required>
+                            <option value="semua">🐑 SEMUA KAMBING (Keseluruhan)</option>
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold">TANGGAL RENCANA</label>
                         <input type="date" name="tanggal_rencana" class="form-control" style="background-color: var(--input-bg);" required>
@@ -305,11 +311,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) { updateChart([]); }
     };
 
-    const loadJadwal = async () => {
+    const loadJadwal = async (id_kambing) => { 
         try {
-            const res = await apiFetch('/api/jadwal-medis');
+            const res = await apiFetch(`/api/jadwal-medis?id_kambing=${id_kambing}`);
             const upcoming = (res.data || []).filter(i => (i.status || '').toLowerCase() !== 'selesai');
+            
             jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+            
             upcoming.forEach(i => {
                 const id = i.id_jadwal || i.id; 
                 jadwalList.innerHTML += `
@@ -321,7 +329,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success flex-shrink-0" style="width: 30px; height: 30px; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</button>
                     </div>`;
             });
-        } catch(e) {}
+        } catch(e) {
+            console.error("Gagal load jadwal:", e);
+        }
     };
 
     const loadKambing = async () => {
@@ -329,6 +339,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const res = await apiFetch('/api/kambing');
             const list = res.data || [];
             kambingSelect.innerHTML = '<option disabled>Pilih Kambing...</option>';
+            
+            const modalSelect = document.getElementById('modalKambingSelect');
+            if(modalSelect) modalSelect.innerHTML = '<option value="semua">🐑 SEMUA KAMBING (Keseluruhan)</option>';
+
             if (!list.length) {
                 kambingSelect.innerHTML = '<option disabled selected>Tidak ada data</option>';
                 return updateChart([]);
@@ -338,6 +352,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 opt.value = k.id_kambing;
                 opt.text = k.nama || `Kambing #${k.id_kambing}`;
                 kambingSelect.appendChild(opt);
+
+                if(modalSelect) {
+                    const opt2 = document.createElement('option');
+                    opt2.value = k.id_kambing;
+                    opt2.text = k.nama || `Kambing #${k.id_kambing}`;
+                    modalSelect.appendChild(opt2);
+                }
             });
             kambingSelect.value = list[0].id_kambing;
             loadData(list[0].id_kambing);
@@ -347,23 +368,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const handleForm = (id, url, method, cb) => {
         document.getElementById(id).addEventListener('submit', async function(e) {
             e.preventDefault();
-            const kid = kambingSelect.value;
-            if(!kid) return alert('Pilih kambing!');
             const data = Object.fromEntries(new FormData(e.target).entries());
-            if (id === 'formJadwalMedis') data.id_kambing = kid;
+            
+            let targetId = id === 'formJadwalMedis' ? data.id_kambing : kambingSelect.value;
+            
+            if(!targetId) return alert('Pilih kambing!');
+            if (id === 'formJadwalMedis') data.id_kambing = targetId;
+            
+            const btnSubmit = e.target.querySelector('button[type="submit"]');
+            const textAsli = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = 'Menyimpan...';
+            btnSubmit.disabled = true;
+
             try {
-                await apiFetch(url.replace('{id}', kid), { method, body: JSON.stringify(data) });
-                bootstrap.Modal.getInstance(document.getElementById(e.target.closest('.modal').id)).hide();
+                await apiFetch(url.replace('{id}', targetId), { method, body: JSON.stringify(data) });
+                
+                const modalEl = document.getElementById(e.target.closest('.modal').id);
+                const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modalInstance.hide(); 
+                
                 e.target.reset();
-                cb(kid);
-            } catch(e) {}
+                cb(targetId);
+                
+                btnSubmit.innerHTML = textAsli;
+                btnSubmit.disabled = false;
+            } catch(error) {
+                console.error("ERROR HERE:", error);
+                alert("Gagal disimpen! Coba pencet F12, buka tab Console, dan cek pesan error warna merah.");
+                
+                btnSubmit.innerHTML = textAsli;
+                btnSubmit.disabled = false;
+            }
         });
     };
 
     handleForm('formInputBerat', '/api/kambing/{id}/timbang', 'POST', loadData);
     handleForm('formJadwalMedis', '/api/jadwal-medis', 'POST', loadJadwal);
-    kambingSelect.addEventListener('change', (e) => loadData(e.target.value));
 
+    kambingSelect.addEventListener('change', (e) => {
+    loadData(e.target.value);   //update grafik
+    loadJadwal(e.target.value); //update agenda vaksin sesuai kambing
+});
+    
     window.updateStatus = async (id) => {
         if (!confirm('Sudah dilakukan?')) return;
         try {
@@ -373,7 +419,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     loadKambing();
-    loadJadwal();
-});
+    });
 </script>
 @endsection

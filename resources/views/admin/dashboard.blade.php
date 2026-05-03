@@ -127,7 +127,7 @@
         const token = localStorage.getItem('token');
         const userString = localStorage.getItem('user');
         
-        //security script
+        // 🛡️ SCRIPT SATPAM: Cek Login & Role Admin
         if (!token || !userString) {
             window.location.href = '/login';
             return;
@@ -139,8 +139,11 @@
             return;
         }
 
-        document.getElementById('namaBos').innerText = user.username;
+        // Tampilkan nama admin
+        const namaBosEl = document.getElementById('namaBos');
+        if(namaBosEl) namaBosEl.innerText = user.username;
 
+        // 1. Fetch Data Kambing
         fetch('/api/kambing', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
         .then(res => res.json())
         .then(result => {
@@ -149,56 +152,39 @@
                 const sakit = result.data.filter(k => k.status_kondisi !== 'Sehat').length;
                 document.getElementById('val-sakit').innerText = sakit;
             }
-        });
+        })
+        .catch(err => console.error('Error Kambing:', err));
 
-        fetch('/api/karyawan/kinerja', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})//fetch data utk grafik 
+        // 2. Fetch Data Kinerja Karyawan (Chart)
+        fetch('/api/karyawan/kinerja', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
         .then(res => res.json())
         .then(result => {
             if(result.status === 'success') {
                 const pekerja = result.data;
                 document.getElementById('val-pekerja').innerText = pekerja.length;
 
-                //ekstrak data chart
                 const labels = pekerja.map(p => p.username);
                 const dataTimbang = pekerja.map(p => p.log_berat_count);
                 const dataMedis = pekerja.map(p => p.jadwal_medis_count);
 
-                const ctx = document.getElementById('kinerjaChart').getContext('2d'); //render grafik bar
+                const ctx = document.getElementById('kinerjaChart').getContext('2d');
                 new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: labels,
                         datasets: [
-                            {
-                                label: 'Input Berat Kambing',
-                                data: dataTimbang,
-                                backgroundColor: '#A5C8A7',
-                                borderRadius: 6
-                            },
-                            {
-                                label: 'Tindakan Medis',
-                                data: dataMedis,
-                                backgroundColor: '#2E7D32', 
-                                borderRadius: 6
-                            }
+                            { label: 'Input Berat Kambing', data: dataTimbang, backgroundColor: '#A5C8A7', borderRadius: 6 },
+                            { label: 'Tindakan Medis', data: dataMedis, backgroundColor: '#2E7D32', borderRadius: 6 }
                         ]
                     },
-                    options: {
-                        responsive: true,
-                        plugins: { 
-                            legend: { position: 'top' } 
-                        },
-                        scales: { 
-                            y: { 
-                                beginAtZero: true, 
-                                ticks: { precision: 0 } 
-                            } 
-                        }
-                    }
+                    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
                 });
             }
-        });
-        fetch('/api/jadwal-medis', { 
+        })
+        .catch(err => console.error('Error Kinerja:', err));
+
+        // 3. Fetch Jadwal Medis (Hanya yang statusnya 'Belum')
+        fetch('/api/jadwal-medis?status=Belum', { 
             headers: { 
                 'Authorization': 'Bearer ' + token, 
                 'Accept': 'application/json' 
@@ -207,7 +193,6 @@
         .then(res => res.json())
         .then(result => {
             if(result.status === 'success') {
-                // Hitung total jadwal medis dari database dan masukkan ke kotak
                 document.getElementById('val-jadwal').innerText = result.data.length;
             } else {
                 document.getElementById('val-jadwal').innerText = '0';

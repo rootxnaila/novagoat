@@ -99,6 +99,59 @@
             cursor: pointer; display: none; z-index: 5;
         }
         .search-wrapper.active .close-search { display: block; }
+
+        /* RESPONSIVE STYLES */
+        .mobile-toggle { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+
+        @media (max-width: 992px) {
+            .header-nav { padding: 12px 20px; width: 92%; top: 15px; }
+            .logo-sub { display: none; }
+            .nav-links { 
+                position: absolute; top: calc(100% + 15px); left: 0; width: 100%; 
+                background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(20px);
+                flex-direction: column; padding: 15px; border-radius: 20px;
+                border: 1px solid rgba(0,0,0,0.05);
+                box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+                
+                /* Transition Setup */
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-15px) scale(0.95);
+                transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                pointer-events: none;
+                z-index: 2000;
+            }
+            .nav-links.show { 
+                opacity: 1; 
+                visibility: visible; 
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+            .nav-links li { width: 100%; border-bottom: 1px solid rgba(0,0,0,0.03); }
+            .nav-links li:last-child { border-bottom: none; }
+            .nav-links a { 
+                padding: 12px 20px; text-align: left; width: 100%; 
+                color: #1A2E1A !important; font-weight: 500; font-size: 0.9rem;
+            }
+            .nav-links a.active { background: rgba(46, 125, 50, 0.08); border-radius: 12px; color: #2E7D32 !important; }
+            .nav-indicator { display: none; }
+            .mobile-toggle { display: block; color: white; margin-left: 5px; }
+            .search-wrapper { width: 38px; }
+            .search-pill { padding: 8px 10px; }
+            .search-pill span { display: none; }
+            .search-wrapper.active { width: 180px; }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (max-width: 576px) {
+            .logo-main { font-size: 0.8rem; }
+            .goat-icon { height: 30px; }
+            .header-nav { padding: 10px 15px; }
+        }
     </style>
 </head>
 <body class="{{ Request::is('login*') || Request::is('register*') ? 'login-page' : '' }}">
@@ -121,6 +174,11 @@
                 indicator.style.width = element.offsetWidth + 'px';
                 indicator.style.left = element.offsetLeft + 'px';
                 indicator.style.height = element.offsetHeight + 'px';
+            }
+
+            function toggleMobileMenu() {
+                const nav = document.getElementById('mainNav');
+                nav.classList.toggle('show');
             }
 
             function toggleSearch() {

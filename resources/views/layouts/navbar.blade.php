@@ -25,28 +25,70 @@
         <span class="close-search" onclick="toggleSearch()" id="closeSearch">&times;</span>
     </div>
     @endif
+    
     <div id="userDropdown" class="dropdown" style="display:none;">
         <button class="btn rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Akun" style="width: 38px; height: 38px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
                 <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
             </svg>
         </button>
-        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow border-secondary" style="min-width: 160px; border-radius: 12px; margin-top: 10px;">
-            <li class="px-3 py-2 text-center border-bottom border-secondary mb-1">
-                <span class="text-info fw-bold d-block" id="usernameDisplay" style="font-size: 0.9rem;">User</span>
-                <span class="text-secondary" id="roleDisplay" style="font-size: 0.7rem; text-transform: uppercase;">Role</span>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 animate-premium-entry" style="min-width: 170px; border-radius: 18px; margin-top: 15px; overflow: hidden; background: #ffffff; box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;">
+            <li class="px-3 py-3 text-center" style="background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%);">
+                <div class="mb-2 mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 42px; height: 42px; background: #ffffff; border-radius: 14px; color: #2E7D32;">
+                    <i class="bi bi-person-badge-fill" style="font-size: 1.3rem;"></i>
+                </div>
+                <span class="fw-bold d-block" id="usernameDisplay" style="font-size: 0.9rem; color: #1A2E1A; letter-spacing: -0.2px;">User</span>
+                <span class="opacity-50" id="roleDisplay" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: #4A6B4C; font-weight: 700;">Admin</span>
             </li>
-            <li>
-                <a class="dropdown-item text-danger d-flex align-items-center gap-2 py-2" href="#" id="logoutBtn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/>
-                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
-                    </svg>
-                    <span style="font-size: 0.85rem; font-weight: 600;">Keluar</span>
+            
+            <li class="p-2">
+                <a class="dropdown-item d-flex align-items-center gap-2 py-2 px-2 rounded-3 tactile-btn" href="#" id="logoutBtn" style="color: #dc3545; background: #fff5f5; border: 1px solid rgba(220, 53, 69, 0.1);">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle shadow-sm bg-white" style="width: 28px; height: 28px;">
+                        <i class="bi bi-box-arrow-right" style="font-size: 0.9rem;"></i>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700;">Keluar</span>
                 </a>
             </li>
         </ul>
+
+        <style>
+            @keyframes premiumPopIn {
+                from { opacity: 0; transform: scale(0.9) translateY(-10px); }
+                to { opacity: 1; transform: scale(1) translateY(0); }
+            }
+
+            .dropdown-menu.show {
+                display: block !important;
+                animation: premiumPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+                pointer-events: auto !important;
+            }
+
+            .dropdown-menu {
+                border: none;
+                background: #ffffff;
+                pointer-events: none;
+            }
+            
+            .tactile-btn {
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .tactile-btn:hover {
+                background: #dc3545 !important;
+                color: #ffffff !important;
+                transform: scale(0.96) !important;
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+            }
+            .tactile-btn:hover i {
+                color: #dc3545;
+            }
+        </style>
     </div>
+
+    <button class="mobile-toggle" onclick="toggleMobileMenu()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+        </svg>
+    </button>
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -59,13 +101,11 @@
             const roleEl = document.getElementById('roleDisplay');
             if (roleEl) roleEl.innerText = userObj.role || '-';
 
-            // ADMIN ONLY: tampilkan menu Manajemen Karyawan
             if(userObj.role === 'Admin') {
                 const mn = document.getElementById('manajemenNav');
                 if(mn) mn.style.display = '';
             }
 
-            // Simpan role secara global untuk dipakai halaman lain (hide tombol delete)
             window.__userRole = userObj.role;
         }
 

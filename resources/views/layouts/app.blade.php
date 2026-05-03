@@ -101,7 +101,6 @@
         }
         .search-wrapper.active .close-search { display: block; }
 
-        /* RESPONSIVE STYLES */
         .mobile-toggle { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
         @media (max-width: 992px) {
@@ -113,8 +112,6 @@
                 flex-direction: column; padding: 15px; border-radius: 20px;
                 border: 1px solid rgba(0,0,0,0.05);
                 box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-                
-                /* Transition Setup */
                 opacity: 0;
                 visibility: hidden;
                 transform: translateY(-15px) scale(0.95);

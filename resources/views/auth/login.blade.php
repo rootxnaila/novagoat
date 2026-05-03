@@ -8,10 +8,10 @@
             <div class="logo-container mb-3 d-inline-flex align-items-center justify-content-center rounded-circle">
                 <img src="{{ asset('images/logo kambiang.png') }}" alt="Logo" class="logo-img">
             </div>
-            <h3 class="fw-bold mb-1 header-title">Login NovaGoat</h3>
+            <h3 class="fw-bold mb-1 header-title">Login Nova Goat</h3>
             <p class="text-secondary small mb-0 opacity-75">Silakan masuk untuk melanjutkan akses</p>
         </div>
-        
+    
         <form id="loginForm" autocomplete="off">
             <div class="mb-3 reveal-item" style="--delay: 0.2s;">
                 <label class="form-label custom-label">Username</label>
@@ -109,7 +109,6 @@
         font-weight: 700;
     }
 
-    /* Animations */
     .card-entrance {
         opacity: 0;
         animation: cardFadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
@@ -132,7 +131,6 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Input & Button Styles */
     .custom-input-group {
         background-color: rgba(255, 255, 255, 0.5) !important;
         border: 1.5px solid rgba(0, 0, 0, 0.05) !important;
@@ -215,7 +213,13 @@
                 container.style.transform = 'scale(1.05)';
                 container.style.filter = 'blur(10px)';
                 
-                setTimeout(() => window.location.href = '/dashboard', 1000);
+                setTimeout(() => {
+                    if (result.data.user.role === 'admin') {
+                        window.location.href = '/dashboard';
+                    } else {
+                        window.location.href = '/katalog'; 
+                    }
+                }, 1000);
             } else {
                 showError(result.message || 'Login gagal');
                 btn.disabled = false;

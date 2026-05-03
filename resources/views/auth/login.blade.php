@@ -215,7 +215,13 @@
                 container.style.transform = 'scale(1.05)';
                 container.style.filter = 'blur(10px)';
                 
-                setTimeout(() => window.location.href = '/dashboard', 1000);
+                setTimeout(() => {
+                    if (result.data.user.role === 'admin') {
+                        window.location.href = '/dashboard';
+                    } else {
+                        window.location.href = '/katalog'; 
+                    }
+                }, 1000);
             } else {
                 showError(result.message || 'Login gagal');
                 btn.disabled = false;

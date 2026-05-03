@@ -139,6 +139,21 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const token = localStorage.getItem('token');
+        const userString = localStorage.getItem('user'); // Ambil data user
+        
+        if (!token || !userString) { //cek login
+            alert('Silakan login terlebih dahulu!');
+            window.location.href = '/login';
+            return;
+        }
+
+        const user = JSON.parse(userString);//cek apa admin
+        if (user.role !== 'admin') {
+            alert('Akses Ditolak! Halaman Dashboard hanya untuk Admin.');
+            window.location.href = '/katalog'; //tendang ke katalog
+            return;
+        }
         fetch('/api/dashboard/stats', { 
             headers: { 
                 'Authorization': 'Bearer ' + localStorage.getItem('token'), 

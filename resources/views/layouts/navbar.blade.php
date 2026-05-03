@@ -9,7 +9,7 @@
 
     <nav>
         <ul class="nav-links" id="mainNav">
-            <li><a href="/dashboard" onclick="moveActive(this)">Dashboard</a></li>
+            <li id="dashboardNav" style="display:none;"><a href="/dashboard" onclick="moveActive(this)">Dashboard</a></li>
             <li><a href="/katalog" onclick="moveActive(this)">Monitoring Kambing</a></li>
             <li><a href="/admin/medis" onclick="moveActive(this)">Perawatan & Medis</a></li>
             <li id="manajemenNav" style="display:none;"><a href="/admin/karyawan" onclick="moveActive(this)">Manajemen Karyawan</a></li>
@@ -102,6 +102,9 @@
             if (roleEl) roleEl.innerText = userObj.role || '-';
 
             if(userObj.role === 'Admin') {
+                const dn = document.getElementById('dashboardNav');
+                if(dn) dn.style.display = '';
+
                 const mn = document.getElementById('manajemenNav');
                 if(mn) mn.style.display = '';
             }

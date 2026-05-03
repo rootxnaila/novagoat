@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #000; color: white; }
@@ -100,7 +101,6 @@
         }
         .search-wrapper.active .close-search { display: block; }
 
-        /* RESPONSIVE STYLES */
         .mobile-toggle { display: none; background: transparent; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
 
         @media (max-width: 992px) {
@@ -112,8 +112,6 @@
                 flex-direction: column; padding: 15px; border-radius: 20px;
                 border: 1px solid rgba(0,0,0,0.05);
                 box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-                
-                /* Transition Setup */
                 opacity: 0;
                 visibility: hidden;
                 transform: translateY(-15px) scale(0.95);
@@ -206,13 +204,13 @@
                     }
                 });
                 
-                // Default to first link if none matches
+                
                 if(!found && links.length > 0) {
                     moveActive(links[0]);
                 }
             };
 
-            // Frontend route guard: redirect to /login when token missing for protected pages
+            
             document.addEventListener('DOMContentLoaded', function() {
                 const token = localStorage.getItem('token');
                 const hasToken = Boolean(token) && token !== 'null' && token !== 'undefined' && String(token).trim() !== '';

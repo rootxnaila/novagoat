@@ -72,5 +72,18 @@ class AuthController extends Controller
         'data' => $user
     ], 201); //201 created
 }
+//nampilin daftar karyawan + kinerja
+    public function getKinerjaKaryawan()
+    {
+        //tarik semua user role anak_kandang sekalian itung total kerjanya
+        $karyawan = User::where('role', 'anak_kandang')
+            ->withCount(['logBerat', 'jadwalMedis'])
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $karyawan
+        ]);
+    }
 }
 

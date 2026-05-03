@@ -9,8 +9,10 @@
 
     //public routes
     Route::post('/login', [AuthController::class, 'login']);    
+
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);   
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/karyawan/kinerja', [App\Http\Controllers\AuthController::class, 'getKinerjaKaryawan'])->middleware('auth:sanctum');   
 
     Route::get('/kambing', [KambingController::class, 'index']);
     Route::get('/kambing/{id}', [KambingController::class, 'show']);

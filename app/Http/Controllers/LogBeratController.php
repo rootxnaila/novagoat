@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\LogBerat;
 use App\Models\Kambing;
 
@@ -27,7 +28,8 @@ class LogBeratController extends Controller
         $log = LogBerat::create([
             'id_kambing' => $id,
             'berat_sekarang' => $request->berat,
-            'tanggal_timbang' => $request->tanggal
+            'tanggal_timbang' => $request->tanggal,
+            'id_user' => Auth::id()
         ]);
 
         return response()->json([

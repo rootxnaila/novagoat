@@ -21,4 +21,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
+    //relasi itung kinerja employee
+    public function logBerat()
+    {
+        return $this->hasMany(LogBerat::class, 'id_user', 'id_user');
+    }
+
+    public function jadwalMedis()
+    {
+        return $this->hasMany(JadwalMedis::class, 'id_user', 'id_user');
+    }
 }

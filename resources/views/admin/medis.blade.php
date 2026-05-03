@@ -1,7 +1,37 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid px-4" style="padding-top: 20px; padding-bottom: 100px; background-color: #000; min-height: 100vh;">
+<style>
+    @media (max-width: 768px) {
+        .chart-wrapper { height: 250px !important; }
+    }
+    .chart-wrapper canvas {
+        width: 100% !important;
+    }
+
+    /* Animation */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-up {
+        opacity: 0;
+        animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+</style>
+<div class="container" style="padding-top: 20px; padding-bottom: 100px; background-color: #000; min-height: 100vh;">
     {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-5 px-2">
         <div>
@@ -20,21 +50,21 @@
     {{-- Stats Cards --}}
     <div class="row g-3 mb-4 px-2">
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow" style="border-radius: 15px;">
+            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-1" style="border-radius: 15px;">
                 <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Total Catatan</small>
                 <h3 id="statTotal" class="text-white fw-bold mb-0">-</h3>
                 <small class="text-info" style="font-size: 0.65rem;">Seluruh entri log berat.</small>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow" style="border-radius: 15px;">
+            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-2" style="border-radius: 15px;">
                 <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Berat Terakhir</small>
                 <h3 id="statTerakhir" class="text-white fw-bold mb-0">- kg</h3>
                 <small class="text-success" style="font-size: 0.65rem;">Data terupdate.</small>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow" style="border-radius: 15px;">
+            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-3" style="border-radius: 15px;">
                 <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Rata-rata Berat</small>
                 <h3 id="statAvg" class="text-white fw-bold mb-0">- kg</h3>
                 <small class="text-warning" style="font-size: 0.65rem;">Periode ini.</small>
@@ -45,24 +75,26 @@
     {{-- Main Content --}}
     <div class="row g-3 px-2">
         <div class="col-lg-8">
-            <div class="card bg-dark border-secondary shadow" style="border-radius: 20px; overflow: hidden;">
+            <div class="card bg-dark border-secondary shadow animate-up delay-4" style="border-radius: 20px; overflow: hidden;">
                 <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Berat Badan Kambing</h6>
                     <div class="d-flex align-items-center bg-black px-3 py-1 rounded-pill" style="border: 1px solid #333;">
-                        <div style="width: 10px; height: 10px; background: #00fbff; border-radius: 2px; margin-right: 8px;"></div>
                         <span class="text-white" style="font-size: 10px;">BERAT BADAN (KG)</span>
                     </div>
                 </div>
                 <div class="card-body p-4">
-                    <div style="position: relative; height: 350px;">
+                    <div class="chart-wrapper" style="position: relative; height: 350px;">
                         <canvas id="medisChart"></canvas>
+                        <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-secondary d-none text-center">
+                            <p class="mb-0">Belum ada data timbangan untuk kambing ini.</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card bg-dark border-secondary shadow h-100" style="border-radius: 20px; overflow: hidden;">
+            <div class="card bg-dark border-secondary shadow h-100 animate-up delay-4" style="border-radius: 20px; overflow: hidden;">
                 <div class="card-header bg-primary py-3 border-0 text-center">
                     <h6 class="m-0 fw-bold text-white" style="font-size: 0.8rem;">AGENDA VAKSIN MENDATANG</h6>
                 </div>
@@ -73,7 +105,6 @@
     </div>
 </div>
 
-{{-- Modal --}}
 {{-- Modal Input Berat --}}
 <div class="modal fade" id="modalInputBerat" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -133,7 +164,7 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js" async></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
@@ -151,9 +182,12 @@
             'Accept': 'application/json'
         };
 
+        const baseUrl = "{{ url('/') }}";
+
         // Helper untuk Fetch API
         const apiFetch = async (url, options = {}) => {
-            const res = await fetch(url, { ...options, headers: { ...authHeaders, ...options.headers } });
+            const fullUrl = url.startsWith('http') ? url : (baseUrl + (url.startsWith('/') ? '' : '/') + url);
+            const res = await fetch(fullUrl, { ...options, headers: { ...authHeaders, ...options.headers } });
             if (!res.ok) throw new Error(await res.text());
             return res.json();
         };
@@ -172,32 +206,102 @@
             medisChart = new Chart(document.getElementById('medisChart').getContext('2d'), {
                 type: 'line',
                 data: { labels: [], datasets: [{ 
-                    label: 'Berat (Kg)', data: [], borderColor: '#00fbff', tension: 0.4, fill: true, backgroundColor: 'rgba(0, 251, 255, 0.1)' 
+                    label: 'Berat (Kg)', 
+                    data: [], 
+                    borderColor: '#00fbff', 
+                    borderWidth: 3,
+                    tension: 0.4, 
+                    fill: true, 
+                    backgroundColor: 'rgba(0, 251, 255, 0.1)',
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#00fbff',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
                 }]},
-                options: { responsive: true, maintainAspectRatio: false }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.9)',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Berat: ${context.parsed.y} kg`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#888', font: { size: 10 } },
+                            grace: '10%'
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888', font: { size: 10 } }
+                        }
+                    }
+                }
             });
             if (pendingChartData) updateChart(pendingChartData);
         };
         tryInitChart();
 
         const updateChart = (data) => {
-            if (!medisChart) return pendingChartData = data;
+            if (!medisChart) {
+                pendingChartData = data;
+                return;
+            }
             
+            const selectedKambingName = (kambingSelect.selectedIndex >= 0) ? 
+                kambingSelect.options[kambingSelect.selectedIndex].text : 'Berat (Kg)';
+            
+            if (!data || data.length === 0) {
+                document.getElementById('noDataMessage').classList.remove('d-none');
+                medisChart.data.labels = [];
+                medisChart.data.datasets[0].data = [];
+                medisChart.update();
+                stats.total.innerText = '0';
+                stats.terakhir.innerText = '-';
+                stats.avg.innerText = '0 kg';
+                return;
+            }
+            document.getElementById('noDataMessage').classList.add('d-none');
+
             medisChart.data.labels = data.map(i => i.tanggal_timbang);
-            medisChart.data.datasets[0].data = data.map(i => i.berat_sekarang);
+            medisChart.data.datasets[0].data = data.map(i => parseFloat(i.berat_sekarang));
+            medisChart.data.datasets[0].label = selectedKambingName;
             medisChart.update();
 
             stats.total.innerText = data.length;
-            stats.terakhir.innerText = data.length ? data[data.length-1].berat_sekarang + ' kg' : '-';
-            const avg = data.length ? (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1) : 0;
+            stats.terakhir.innerText = data[data.length-1].berat_sekarang + ' kg';
+            const avg = (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1);
             stats.avg.innerText = avg + ' kg';
         };
 
         const loadChartData = async (id) => {
+            if (!id) return;
             try {
                 const res = await apiFetch(`/api/grafik-berat/${id}`);
                 updateChart(res.data || []);
-            } catch(e) { console.error("Gagal load grafik:", e); }
+            } catch(e) { 
+                console.error("Gagal load grafik:", e);
+                updateChart([]); // Reset UI on error
+            }
         };
 
         const loadJadwal = async () => {
@@ -222,15 +326,26 @@
             try {
                 const res = await apiFetch('/api/kambing');
                 const list = res.data || [];
-                kambingSelect.innerHTML = '<option disabled selected>Pilih Kambing...</option>';
+                console.log("Data Kambing dari API:", list); 
+                
+                kambingSelect.innerHTML = '<option disabled>Pilih Kambing...</option>';
+                
+                if (list.length === 0) {
+                    kambingSelect.innerHTML = '<option disabled selected>Tidak ada data kambing</option>';
+                    updateChart([]);
+                    return;
+                }
+
                 list.forEach(k => {
-                    kambingSelect.innerHTML += `<option value="${k.id_kambing}">${k.nama || 'Kambing #'+k.id_kambing}</option>`;
+                    const option = document.createElement('option');
+                    option.value = k.id_kambing;
+                    option.text = k.nama || `Kambing #${k.id_kambing}`;
+                    kambingSelect.appendChild(option);
                 });
-                if(list.length) {
+
+                if (list.length > 0) {
                     kambingSelect.value = list[0].id_kambing;
                     loadChartData(list[0].id_kambing);
-                } else {
-                    updateChart([]);
                 }
             } catch(e) { console.error("Gagal load kambing:", e); }
         };
@@ -266,7 +381,7 @@
         window.updateStatus = async (id) => {
             if (!confirm('Apakah vaksin / tindakan medis ini sudah dilakukan?')) return;
             try {
-                const res = await fetch(`/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders });
+                const res = await fetch(baseUrl + `/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders });
                 if (res.ok) {
                     const el = document.getElementById(`jadwal-${id}`);
                     if (el) {

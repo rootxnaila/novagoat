@@ -38,8 +38,7 @@
     .btn-main:hover { transform: translateY(-4px); background: #fff; box-shadow: 0 15px 35px rgba(45,90,39,0.25); }
     .btn-main::after { content: ''; position: absolute; inset: 0; left: -100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.6s; }
     .btn-main:hover::after { left: 100%; }
-
-    /* Unified Reveal Animations */
+    
     .reveal { opacity: 0; transform: translateY(20px); animation: revealMove 0.8s ease forwards; will-change: transform, opacity; }
     .reveal-left { transform: translateX(-50px); animation-name: revealSlide; }
     

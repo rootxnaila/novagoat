@@ -2,91 +2,137 @@
 
 @section('content')
 <style>
+    :root {
+        --dark-green: #1B4D1E;
+        --medium-green: #2E7D32;
+        --button-green: #3D7A40;
+        --light-green: #A5C8A7;
+        --pale-mint: #D6EDD7;
+        --page-bg: #E8EDEA;
+        --card-white: #FFFFFF;
+        --input-bg: #F2F5F2;
+        --icon-circle: #C8DAC9;
+        --muted-shadow: #B0BEB1;
+        --heading-text: #1A2E1A;
+        --sub-text: #4A6B4C;
+        --placeholder: #9BB09C;
+        --border-divider: #D0DDD1;
+    }
+
+    body {
+        background-color: var(--page-bg) !important;
+        color: var(--heading-text) !important;
+    }
+
+    .main-content-padded {
+        background-color: var(--page-bg) !important;
+    }
+
     @media (max-width: 768px) {
         .chart-wrapper { height: 250px !important; }
     }
+
     .chart-wrapper canvas {
         width: 100% !important;
     }
 
-    /* Animation */
+    .btn-nature {
+        transition: all 0.3s ease;
+        border-radius: 50px !important;
+        font-weight: bold;
+        padding: 0.5rem 1.5rem;
+    }
+
+    .btn-nature-primary {
+        background-color: var(--medium-green);
+        color: white;
+        border: 1px solid var(--medium-green);
+    }
+
+    .btn-nature-secondary {
+        background-color: var(--pale-mint);
+        color: var(--dark-green);
+        border: 1px solid var(--light-green);
+    }
+
+    .btn-nature-primary:hover, .btn-nature-secondary:hover {
+        background-color: var(--dark-green) !important;
+        border-color: var(--dark-green) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(27, 77, 30, 0.2);
+    }
+
+    .card-nature {
+        background-color: var(--card-white);
+        border: 1px solid var(--border-divider);
+        border-radius: 20px !important;
+    }
+
     @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .animate-up {
-        opacity: 0;
-        animation: fadeInUp 0.6s ease-out forwards;
-    }
-
+    .animate-up { opacity: 0; animation: fadeInUp 0.6s ease-out forwards; }
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
 </style>
-<div class="container" style="padding-top: 20px; padding-bottom: 100px; background-color: #000; min-height: 100vh;">
-    {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-5 px-2">
+
+<div class="container" style="padding-top: 40px; padding-bottom: 100px; min-height: 100vh;">
+    <div class="d-flex justify-content-between align-items-center mb-5 px-4">
         <div>
-            <h2 class="text-white fw-bold">Jadwal Medis & Vaksin</h2>
-            <p class="text-secondary mb-0 font-monospace" style="font-size: 0.85rem;">Monitoring kesehatan dan jadwal imunisasi ternak.</p>
+            <h2 class="fw-bold" style="color: var(--heading-text);">Jadwal Medis & Vaksin</h2>
+            <p class="mb-0 font-monospace" style="font-size: 0.85rem; color: var(--sub-text);">Monitoring kesehatan dan jadwal imunisasi ternak.</p>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <select id="kambingSelect" class="form-select form-select-sm bg-black text-white border-secondary" style="width: 220px; min-width: 180px;">
+            <select id="kambingSelect" class="form-select form-select-sm border-0 shadow-sm" style="width: 220px; background-color: var(--card-white); color: var(--heading-text); border-radius: 10px;">
                 <option value="" disabled selected>Pilih Kambing...</option>
             </select>
-            <button class="btn btn-warning btn-sm rounded-pill px-3 fw-bold text-dark shadow" data-bs-toggle="modal" data-bs-target="#modalJadwalMedis">+ JADWAL MEDIS</button>
-            <button class="btn btn-info btn-sm rounded-pill px-3 fw-bold text-dark shadow" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
+            <button class="btn btn-nature btn-nature-secondary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalJadwalMedis">+ JADWAL MEDIS</button>
+            <button class="btn btn-nature btn-nature-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
         </div>
     </div>
 
-    {{-- Stats Cards --}}
-    <div class="row g-3 mb-4 px-2">
+    <div class="row g-3 mb-4 px-4">
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-1" style="border-radius: 15px;">
-                <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Total Catatan</small>
-                <h3 id="statTotal" class="text-white fw-bold mb-0">-</h3>
-                <small class="text-info" style="font-size: 0.65rem;">Seluruh entri log berat.</small>
+            <div class="card card-nature p-3 shadow-sm animate-up delay-1">
+                <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: var(--sub-text);">Total Catatan</small>
+                <h3 id="statTotal" class="fw-bold mb-0">-</h3>
+                <small style="font-size: 0.65rem; color: var(--medium-green);">Seluruh entri log berat.</small>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-2" style="border-radius: 15px;">
-                <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Berat Terakhir</small>
-                <h3 id="statTerakhir" class="text-white fw-bold mb-0">- kg</h3>
-                <small class="text-success" style="font-size: 0.65rem;">Data terupdate.</small>
+            <div class="card card-nature p-3 shadow-sm animate-up delay-2">
+                <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: var(--sub-text);">Berat Terakhir</small>
+                <h3 id="statTerakhir" class="fw-bold mb-0">- kg</h3>
+                <small style="font-size: 0.65rem; color: var(--medium-green);">Data terupdate.</small>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-secondary p-3 shadow animate-up delay-3" style="border-radius: 15px;">
-                <small class="text-secondary text-uppercase" style="font-size: 0.7rem;">Rata-rata Berat</small>
-                <h3 id="statAvg" class="text-white fw-bold mb-0">- kg</h3>
-                <small class="text-warning" style="font-size: 0.65rem;">Periode ini.</small>
+            <div class="card card-nature p-3 shadow-sm animate-up delay-3">
+                <small class="text-uppercase fw-bold" style="font-size: 0.7rem; color: var(--sub-text);">Rata-rata Berat</small>
+                <h3 id="statAvg" class="fw-bold mb-0">- kg</h3>
+                <small style="font-size: 0.65rem; color: var(--medium-green);">Periode ini.</small>
             </div>
         </div>
     </div>
 
-    {{-- Main Content --}}
-    <div class="row g-3 px-2">
+    <div class="row g-3 px-4">
         <div class="col-lg-8">
-            <div class="card bg-dark border-secondary shadow animate-up delay-4" style="border-radius: 20px; overflow: hidden;">
-                <div class="card-header bg-dark border-secondary py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-info" style="font-size: 0.8rem;">Grafik Monitor Berat Badan Kambing</h6>
-                    <div class="d-flex align-items-center bg-black px-3 py-1 rounded-pill" style="border: 1px solid #333;">
-                        <span class="text-white" style="font-size: 10px;">BERAT BADAN (KG)</span>
+            <div class="card card-nature shadow-sm animate-up delay-4" style="overflow: hidden;">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center" style="background-color: var(--card-white); border-bottom: 1px solid var(--border-divider);">
+                    <h6 class="m-0 fw-bold" style="font-size: 0.8rem; color: var(--dark-green);">Grafik Monitor Berat Badan Kambing</h6>
+                    <div class="px-3 py-1 rounded-pill" style="border: 1px solid var(--border-divider); background-color: var(--page-bg);">
+                        <span class="fw-bold" style="font-size: 10px; color: var(--sub-text);">BERAT BADAN (KG)</span>
                     </div>
                 </div>
                 <div class="card-body p-4">
                     <div class="chart-wrapper" style="position: relative; height: 350px;">
                         <canvas id="medisChart"></canvas>
                         <div id="noDataMessage" class="position-absolute top-50 start-50 translate-middle text-secondary d-none text-center">
-                            <p class="mb-0">Belum ada data timbangan untuk kambing ini.</p>
+                            <p class="mb-0" style="color: var(--muted-shadow);">Belum ada data timbangan untuk kambing ini.</p>
                         </div>
                     </div>
                 </div>
@@ -94,70 +140,67 @@
         </div>
 
         <div class="col-lg-4">
-            <div class="card bg-dark border-secondary shadow h-100 animate-up delay-4" style="border-radius: 20px; overflow: hidden;">
-                <div class="card-header bg-primary py-3 border-0 text-center">
+            <div class="card card-nature shadow-sm h-100 animate-up delay-4" style="overflow: hidden;">
+                <div class="card-header py-3 border-0 text-center" style="background-color: var(--medium-green);">
                     <h6 class="m-0 fw-bold text-white" style="font-size: 0.8rem;">AGENDA VAKSIN MENDATANG</h6>
                 </div>
-                <div id="jadwalList" class="card-body p-3 overflow-auto" style="max-height: 450px;">
-                    </div>
+                <div id="jadwalList" class="card-body p-3 overflow-auto" style="max-height: 450px;"></div>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Modal Input Berat --}}
 <div class="modal fade" id="modalInputBerat" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark border-secondary shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white fw-bold">Input Data Timbangan</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Input Data Timbangan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formInputBerat">
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">TANGGAL TIMBANG</label>
-                        <input type="date" name="tanggal" class="form-control bg-black border-secondary text-white shadow-none" required>
+                        <label class="form-label small fw-bold">TANGGAL TIMBANG</label>
+                        <input type="date" name="tanggal" class="form-control" style="background-color: var(--input-bg);" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">BERAT (KG)</label>
+                        <label class="form-label small fw-bold">BERAT (KG)</label>
                         <div class="input-group">
-                            <input type="number" step="0.1" name="berat" class="form-control bg-black border-secondary text-white shadow-none" placeholder="25.5" required>
-                            <span class="input-group-text bg-secondary border-secondary text-white">kg</span>
+                            <input type="number" step="0.1" name="berat" class="form-control" placeholder="25.5" style="background-color: var(--input-bg);" required>
+                            <span class="input-group-text border-0 text-white" style="background-color: var(--medium-green);">kg</span>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-info rounded-pill px-4 fw-bold text-dark">Simpan Berat</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-nature btn-nature-primary shadow-sm">Simpan Berat</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-{{-- Modal Tambah Jadwal Medis --}}
 <div class="modal fade" id="modalJadwalMedis" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark border-secondary shadow-lg" style="border-radius: 20px;">
-            <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white fw-bold">Tambah Jadwal Medis / Vaksin</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+            <div class="modal-header border-bottom">
+                <h5 class="modal-title fw-bold">Tambah Jadwal Medis / Vaksin</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="formJadwalMedis">
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">TANGGAL RENCANA</label>
-                        <input type="date" name="tanggal_rencana" class="form-control bg-black border-secondary text-white shadow-none" required>
+                        <label class="form-label small fw-bold">TANGGAL RENCANA</label>
+                        <input type="date" name="tanggal_rencana" class="form-control" style="background-color: var(--input-bg);" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-secondary small fw-bold">JENIS TINDAKAN / VAKSIN</label>
-                        <input type="text" name="jenis_tindakan" class="form-control bg-black border-secondary text-white shadow-none" placeholder="Contoh: Vaksin PMK, Pemberian Vitamin" required>
+                        <label class="form-label small fw-bold">JENIS TINDAKAN / VAKSIN</label>
+                        <input type="text" name="jenis_tindakan" class="form-control" placeholder="Vaksin PMK, Vitamin" style="background-color: var(--input-bg);" required>
                     </div>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-sm btn-warning rounded-pill px-4 fw-bold text-dark">Simpan Jadwal</button>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-nature btn-nature-primary shadow-sm">Simpan Jadwal</button>
                 </div>
             </form>
         </div>
@@ -167,237 +210,170 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-        const kambingSelect = document.getElementById('kambingSelect');
-        const jadwalList = document.getElementById('jadwalList');
-        const stats = {
-            total: document.getElementById('statTotal'),
-            terakhir: document.getElementById('statTerakhir'),
-            avg: document.getElementById('statAvg')
-        };
+document.addEventListener('DOMContentLoaded', function() {
+    const kambingSelect = document.getElementById('kambingSelect');
+    const jadwalList = document.getElementById('jadwalList');
+    const stats = {
+        total: document.getElementById('statTotal'),
+        terakhir: document.getElementById('statTerakhir'),
+        avg: document.getElementById('statAvg')
+    };
 
-        const authHeaders = {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        };
+    const headers = {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
 
-        const baseUrl = "{{ url('/') }}";
+    const apiFetch = async (url, opt = {}) => {
+        const fullUrl = url.startsWith('http') ? url : `{{ url('/') }}${url.startsWith('/') ? '' : '/'}${url}`;
+        const res = await fetch(fullUrl, { ...opt, headers: { ...headers, ...opt.headers } });
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+    };
 
-        // Helper untuk Fetch API
-        const apiFetch = async (url, options = {}) => {
-            const fullUrl = url.startsWith('http') ? url : (baseUrl + (url.startsWith('/') ? '' : '/') + url);
-            const res = await fetch(fullUrl, { ...options, headers: { ...authHeaders, ...options.headers } });
-            if (!res.ok) throw new Error(await res.text());
-            return res.json();
-        };
+    let medisChart = null;
+    let pendingData = null;
 
-        // UI Loading States
-        const spinner = '<span class="spinner-border spinner-border-sm text-secondary"></span>';
-        Object.values(stats).forEach(el => el.innerHTML = spinner);
-        jadwalList.innerHTML = `<p class="text-secondary text-center mt-4">${spinner} Memuat jadwal...</p>`;
-        kambingSelect.innerHTML = '<option disabled selected>Memuat data kambing...</option>';
-
-        let medisChart = null;
-        let pendingChartData = null;
-
-        const tryInitChart = () => {
-            if (typeof Chart === 'undefined') return setTimeout(tryInitChart, 100);
-            medisChart = new Chart(document.getElementById('medisChart').getContext('2d'), {
-                type: 'line',
-                data: { labels: [], datasets: [{ 
-                    label: 'Berat (Kg)', 
-                    data: [], 
-                    borderColor: '#00fbff', 
-                    borderWidth: 3,
-                    tension: 0.4, 
-                    fill: true, 
-                    backgroundColor: 'rgba(0, 251, 255, 0.1)',
-                    pointRadius: 6,
-                    pointHoverRadius: 8,
-                    pointBackgroundColor: '#00fbff',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2
-                }]},
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false,
-                    interaction: {
-                        intersect: false,
-                        mode: 'index',
-                    },
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: 'rgba(0,0,0,0.9)',
-                            titleFont: { size: 14, weight: 'bold' },
-                            bodyFont: { size: 13 },
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return `Berat: ${context.parsed.y} kg`;
-                                }
+    const initChart = () => {
+        if (typeof Chart === 'undefined') return setTimeout(initChart, 100);
+        medisChart = new Chart(document.getElementById('medisChart').getContext('2d'), {
+            type: 'line',
+            data: { labels: [], datasets: [{ 
+                label: 'Berat (Kg)', 
+                data: [], 
+                borderColor: '#2E7D32', 
+                borderWidth: 3,
+                tension: 0.4, 
+                fill: true, 
+                backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointBackgroundColor: '#2E7D32',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]},
+            options: { 
+                responsive: true, maintainAspectRatio: false,
+                interaction: { intersect: false, mode: 'index' },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(27, 77, 30, 0.95)',
+                        titleFont: { size: 11, weight: '400' },
+                        bodyFont: { size: 12, weight: '600' },
+                        padding: 8,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `Berat: ${context.parsed.y} kg`;
                             }
                         }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#888', font: { size: 10 } },
-                            grace: '10%'
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#888', font: { size: 10 } }
-                        }
                     }
+                },
+                scales: {
+                    y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#4A6B4C' }, grace: '5%' },
+                    x: { grid: { display: false }, ticks: { color: '#4A6B4C' } }
                 }
-            });
-            if (pendingChartData) updateChart(pendingChartData);
-        };
-        tryInitChart();
-
-        const updateChart = (data) => {
-            if (!medisChart) {
-                pendingChartData = data;
-                return;
             }
-            
-            const selectedKambingName = (kambingSelect.selectedIndex >= 0) ? 
-                kambingSelect.options[kambingSelect.selectedIndex].text : 'Berat (Kg)';
-            
-            if (!data || data.length === 0) {
-                document.getElementById('noDataMessage').classList.remove('d-none');
-                medisChart.data.labels = [];
-                medisChart.data.datasets[0].data = [];
-                medisChart.update();
-                stats.total.innerText = '0';
-                stats.terakhir.innerText = '-';
-                stats.avg.innerText = '0 kg';
-                return;
-            }
-            document.getElementById('noDataMessage').classList.add('d-none');
+        });
+        if (pendingData) updateChart(pendingData);
+    };
+    initChart();
 
-            medisChart.data.labels = data.map(i => i.tanggal_timbang);
-            medisChart.data.datasets[0].data = data.map(i => parseFloat(i.berat_sekarang));
-            medisChart.data.datasets[0].label = selectedKambingName;
-            medisChart.update();
+    const updateChart = (data) => {
+        if (!medisChart) return pendingData = data;
+        
+        const empty = !data || data.length === 0;
+        document.getElementById('noDataMessage').classList.toggle('d-none', !empty);
+        
+        medisChart.data.labels = empty ? [] : data.map(i => i.tanggal_timbang);
+        medisChart.data.datasets[0].data = empty ? [] : data.map(i => parseFloat(i.berat_sekarang));
+        medisChart.update();
 
-            stats.total.innerText = data.length;
-            stats.terakhir.innerText = data[data.length-1].berat_sekarang + ' kg';
-            const avg = (data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1);
-            stats.avg.innerText = avg + ' kg';
-        };
+        stats.total.innerText = empty ? '0' : data.length;
+        stats.terakhir.innerText = empty ? '-' : `${data[data.length-1].berat_sekarang} kg`;
+        stats.avg.innerText = empty ? '0 kg' : `${(data.reduce((a, b) => a + parseFloat(b.berat_sekarang), 0) / data.length).toFixed(1)} kg`;
+    };
 
-        const loadChartData = async (id) => {
-            if (!id) return;
-            try {
-                const res = await apiFetch(`/api/grafik-berat/${id}`);
-                updateChart(res.data || []);
-            } catch(e) { 
-                console.error("Gagal load grafik:", e);
-                updateChart([]); // Reset UI on error
-            }
-        };
+    const loadData = async (id) => {
+        if (!id) return;
+        try {
+            const res = await apiFetch(`/api/grafik-berat/${id}`);
+            updateChart(res.data || []);
+        } catch(e) { updateChart([]); }
+    };
 
-        const loadJadwal = async () => {
-            try {
-                const res = await apiFetch('/api/jadwal-medis');
-                const upcoming = (res.data || []).filter(item => (item.status || '').toLowerCase() !== 'selesai');
-                jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
-                upcoming.forEach(item => {
-                    const id = item.id_jadwal || item.id; 
-                    jadwalList.innerHTML += `
-                        <div class="p-3 mb-3 shadow-sm position-relative" id="jadwal-${id}" style="background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid #00fbff;">
-                            <small class="text-info fw-bold d-block mb-1">${item.tanggal_rencana || item.tanggal || '-'}</small>
-                            <h6 class="text-white fw-bold mb-0">${item.jenis_tindakan || item.kegiatan || '-'}</h6>
-                            <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success position-absolute end-0 top-50 translate-middle-y me-2" style="font-size: 10px;" title="Tandai Selesai">✓</button>
+    const loadJadwal = async () => {
+        try {
+            const res = await apiFetch('/api/jadwal-medis');
+            const upcoming = (res.data || []).filter(i => (i.status || '').toLowerCase() !== 'selesai');
+            jadwalList.innerHTML = upcoming.length ? '' : '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
+            upcoming.forEach(i => {
+                const id = i.id_jadwal || i.id; 
+                jadwalList.innerHTML += `
+                    <div class="p-3 mb-3 shadow-sm d-flex justify-content-between align-items-center" id="jadwal-${id}" style="background: var(--input-bg); border-radius: 12px; border-left: 4px solid var(--medium-green);">
+                        <div style="padding-right: 10px; overflow: hidden;">
+                            <small class="fw-bold d-block mb-1" style="color: var(--medium-green);">${i.tanggal_rencana || i.tanggal || '-'}</small>
+                            <h6 class="fw-bold mb-0" style="color: var(--heading-text); font-size: 0.85rem; line-height: 1.4;">${i.jenis_tindakan || i.kegiatan || '-'}</h6>
                         </div>
-                    `;
-                });
-            } catch(e) { console.error("Gagal load jadwal:", e); }
-        };
-
-        const loadKambing = async () => {
-            try {
-                const res = await apiFetch('/api/kambing');
-                const list = res.data || [];
-                console.log("Data Kambing dari API:", list); 
-                
-                kambingSelect.innerHTML = '<option disabled>Pilih Kambing...</option>';
-                
-                if (list.length === 0) {
-                    kambingSelect.innerHTML = '<option disabled selected>Tidak ada data kambing</option>';
-                    updateChart([]);
-                    return;
-                }
-
-                list.forEach(k => {
-                    const option = document.createElement('option');
-                    option.value = k.id_kambing;
-                    option.text = k.nama || `Kambing #${k.id_kambing}`;
-                    kambingSelect.appendChild(option);
-                });
-
-                if (list.length > 0) {
-                    kambingSelect.value = list[0].id_kambing;
-                    loadChartData(list[0].id_kambing);
-                }
-            } catch(e) { console.error("Gagal load kambing:", e); }
-        };
-
-        // Form Handlers
-        const handleForm = (formId, url, method, onSuccess) => {
-            document.getElementById(formId).addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const id = kambingSelect.value;
-                if(!id) return alert('Pilih kambing terlebih dahulu!');
-                
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData.entries());
-                if (formId === 'formJadwalMedis') data.id_kambing = id;
-
-                try {
-                    await apiFetch(url.replace('{id}', id), {
-                        method: method,
-                        body: JSON.stringify(data)
-                    });
-                    bootstrap.Modal.getInstance(document.getElementById(e.target.closest('.modal').id)).hide();
-                    e.target.reset();
-                    onSuccess(id);
-                } catch(e) { console.error(`Gagal simpan ${formId}:`, e); }
+                        <button onclick="updateStatus(${id})" class="btn btn-sm btn-outline-success flex-shrink-0" style="width: 30px; height: 30px; border-radius: 8px; font-size: 10px; display: flex; align-items: center; justify-content: center;">✓</button>
+                    </div>`;
             });
-        };
+        } catch(e) {}
+    };
 
-        handleForm('formInputBerat', '/api/kambing/{id}/timbang', 'POST', loadChartData);
-        handleForm('formJadwalMedis', '/api/jadwal-medis', 'POST', loadJadwal);
+    const loadKambing = async () => {
+        try {
+            const res = await apiFetch('/api/kambing');
+            const list = res.data || [];
+            kambingSelect.innerHTML = '<option disabled>Pilih Kambing...</option>';
+            if (!list.length) {
+                kambingSelect.innerHTML = '<option disabled selected>Tidak ada data</option>';
+                return updateChart([]);
+            }
+            list.forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k.id_kambing;
+                opt.text = k.nama || `Kambing #${k.id_kambing}`;
+                kambingSelect.appendChild(opt);
+            });
+            kambingSelect.value = list[0].id_kambing;
+            loadData(list[0].id_kambing);
+        } catch(e) {}
+    };
 
-        kambingSelect.addEventListener('change', (e) => loadChartData(e.target.value));
-
-        window.updateStatus = async (id) => {
-            if (!confirm('Apakah vaksin / tindakan medis ini sudah dilakukan?')) return;
+    const handleForm = (id, url, method, cb) => {
+        document.getElementById(id).addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const kid = kambingSelect.value;
+            if(!kid) return alert('Pilih kambing!');
+            const data = Object.fromEntries(new FormData(e.target).entries());
+            if (id === 'formJadwalMedis') data.id_kambing = kid;
             try {
-                const res = await fetch(baseUrl + `/api/jadwal-medis/${id}`, { method: 'PATCH', headers: authHeaders });
-                if (res.ok) {
-                    const el = document.getElementById(`jadwal-${id}`);
-                    if (el) {
-                        el.style.opacity = "0";
-                        el.style.transform = "translateX(20px)";
-                        setTimeout(() => {
-                            el.remove();
-                            if (!jadwalList.children.length) jadwalList.innerHTML = '<p class="text-secondary text-center mt-4">Tidak ada jadwal medis</p>';
-                        }, 300);
-                    }
-                }
-            } catch(e) { console.error("Gagal update status:", e); }
-        };
+                await apiFetch(url.replace('{id}', kid), { method, body: JSON.stringify(data) });
+                bootstrap.Modal.getInstance(document.getElementById(e.target.closest('.modal').id)).hide();
+                e.target.reset();
+                cb(kid);
+            } catch(e) {}
+        });
+    };
 
-        loadKambing();
-        loadJadwal();
-    });
+    handleForm('formInputBerat', '/api/kambing/{id}/timbang', 'POST', loadData);
+    handleForm('formJadwalMedis', '/api/jadwal-medis', 'POST', loadJadwal);
+    kambingSelect.addEventListener('change', (e) => loadData(e.target.value));
+
+    window.updateStatus = async (id) => {
+        if (!confirm('Sudah dilakukan?')) return;
+        try {
+            const res = await fetch(`{{ url('/') }}/api/jadwal-medis/${id}`, { method: 'PATCH', headers });
+            if (res.ok) document.getElementById(`jadwal-${id}`).remove();
+        } catch(e) {}
+    };
+
+    loadKambing();
+    loadJadwal();
+});
 </script>
 @endsection

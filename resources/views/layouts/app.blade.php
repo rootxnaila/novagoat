@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kambing Super Pak Tarno</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: #000; color: white; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: white; }
         
         .main-content-padded { padding-top: 110px; min-height: 100vh; }
         .main-content-full { height: 100vh; overflow: hidden; }
@@ -22,10 +24,10 @@
             transform: translateX(-50%);
             width: 90%;
             max-width: 1400px;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(27, 77, 30, 0.8);
             backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -38,7 +40,7 @@
         .goat-icon { height: 40px; width: auto; }
         .logo-text-stack { display: flex; flex-direction: column; line-height: 1.1; }
         .logo-main { color: white; font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
-        .logo-sub { color: rgba(255, 255, 255, 0.7); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .logo-sub { color: rgba(255, 255, 255, 0.8); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
         .nav-links { display: flex; list-style: none; gap: 5px; align-items: center; position: relative; margin: 0; padding: 0; }
         .nav-links li { z-index: 2; margin: 0; padding: 0; }
         .nav-links a { 
@@ -46,10 +48,11 @@
             font-size: 0.85rem; padding: 10px 20px; display: block;
             transition: color 0.4s ease;
         }
-        .nav-links a.active { color: #000; }
+        .nav-links a.active { color: #1A2E1A; font-weight: bold; }
         .nav-indicator {
-            position: absolute; background: #fff; border-radius: 25px; z-index: 1;
+            position: absolute; background: #D6EDD7; border-radius: 25px; z-index: 1;
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .search-wrapper {

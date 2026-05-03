@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         *{ margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #000; color: white; }
@@ -206,13 +207,13 @@
                     }
                 });
                 
-                // Default to first link if none matches
+                
                 if(!found && links.length > 0) {
                     moveActive(links[0]);
                 }
             };
 
-            // Frontend route guard: redirect to /login when token missing for protected pages
+            
             document.addEventListener('DOMContentLoaded', function() {
                 const token = localStorage.getItem('token');
                 const hasToken = Boolean(token) && token !== 'null' && token !== 'undefined' && String(token).trim() !== '';

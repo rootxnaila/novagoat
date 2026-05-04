@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div id="loginContainer" class="login-wrapper d-flex align-items-center justify-content-center vh-100">
+<div id="loginContainer" class="login-wrapper d-flex align-items-center justify-content-center py-5">
     <div class="card login-card p-4 shadow-lg border-0 reveal glass-card">
         <div class="text-center mb-4 reveal" style="animation-delay: 0.1s;">
             <div class="logo-container mb-3 d-inline-flex align-items-center justify-content-center rounded-circle">
@@ -45,16 +45,17 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
     :root { --primary: #2d5a27; --secondary: #3e7b36; }
-    body { font-family: 'Outfit', sans-serif; overflow: hidden; background: #ced4da; }
+    body { font-family: 'Outfit', sans-serif; background: #ced4da; }
 
     .login-wrapper {
+        min-height: 100vh;
         background: radial-gradient(at 0% 0%, #cbd5e0, transparent 50%), 
                     radial-gradient(at 100% 0%, #ced4da, transparent 50%), 
                     radial-gradient(at 0% 100%, rgba(45,90,39,0.08), transparent 50%), 
                     radial-gradient(at 100% 100%, rgba(62,123,54,0.08), transparent 50%), #ced4da;
     }
 
-    .login-card { width: 100%; max-width: 400px; border-radius: 30px; background: rgba(255,255,255,0.8) !important; backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(255,255,255,0.4) !important; }
+    .login-card { width: 92%; max-width: 380px; border-radius: 30px; background: rgba(255,255,255,0.8) !important; backdrop-filter: blur(20px) saturate(180%); border: 1px solid rgba(255,255,255,0.4) !important; }
     .logo-container { width: 100px; height: 100px; background: rgba(45,90,39,0.1); }
     .logo-img { height: 60px; filter: brightness(0) invert(26%) sepia(54%) saturate(541%) hue-rotate(66deg); }
     
@@ -69,8 +70,23 @@
     .btn-shine { position: absolute; inset: 0; left: -100%; width: 50%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-25deg); transition: 0.75s; }
     .btn-login:hover .btn-shine { left: 125%; }
 
-    .reveal { opacity: 0; transform: translateY(20px); animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-    @keyframes revealUp { to { opacity: 1; transform: translateY(0); } }
+    .reveal { 
+        opacity: 0; 
+        transform: translateY(30px) scale(0.98); 
+        animation: revealSmooth 1.2s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; 
+        will-change: transform, opacity;
+    }
+    @keyframes revealSmooth { 
+        to { opacity: 1; transform: translateY(0) scale(1); } 
+    }
+
+    @media (max-width: 576px) {
+        .login-card { padding: 35px 25px !important; border-radius: 25px; }
+        .logo-container { width: 85px; height: 85px; }
+        .logo-img { height: 50px; }
+        .header-title { font-size: 1.5rem; }
+        .custom-input-group input { font-size: 0.95rem; }
+    }
 </style>
 
 <script>

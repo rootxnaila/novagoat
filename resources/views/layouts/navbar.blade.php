@@ -101,7 +101,7 @@
             const roleEl = document.getElementById('roleDisplay');
             if (roleEl) roleEl.innerText = userObj.role || '-';
 
-            if(userObj.role === 'Admin') {
+            if(userObj.role && userObj.role.toLowerCase() === 'admin') {
                 const dn = document.getElementById('dashboardNav');
                 if(dn) dn.style.display = '';
 

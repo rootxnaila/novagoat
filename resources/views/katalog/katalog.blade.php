@@ -82,11 +82,11 @@
             <h3 class="fw-bold text-heading mb-0"><i class="bi bi-book-half" style="color: var(--medium-green);"></i> Katalog Ensiklopedia</h3>
             <small class="text-sub">Manajemen Data Seluruh Kambing di Peternakan</small>
         </div>
-        @if(Auth::user() && Auth::user()->role === 'admin') 
-            <button class="btn btn-nova-primary px-4 py-2" onclick="window.location.href='/katalog/tambah'">
-                <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
-            </button> 
-        @endif
+        
+        <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" onclick="window.location.href='/katalog/tambah'">
+            <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
+        </button> 
+        
     </div>
     
     <div class="card card-katalog p-0">
@@ -99,13 +99,14 @@
                         <th class="text-start">Nama Kambing</th> 
                         <th>Ras/Jenis</th> 
                         <th>Berat Awal</th> 
+                        <th>Berat Sekarang</th> 
                         <th>Status</th> 
                         <th>Aksi</th> 
                     </tr>
                 </thead>
                 <tbody id="katalog-container"> 
                     <tr>
-                        <td colspan="7" class="py-5 text-center text-sub">Memuat data dari server... <br> <small>Pastikan API Sanctum menyala</small></td> 
+                        <td colspan="8" class="py-5 text-center text-sub">Memuat data dari server... <br> <small>Pastikan API Sanctum menyala</small></td> 
                     </tr>
                 </tbody>
             </table>
@@ -114,15 +115,22 @@
 </div>
 
 <script>
-    const userRole = "{{ Auth::user() ? Auth::user()->role : 'guest' }}"; 
+    //role dr localstorage, kebal uppercase
+    const userDataStore = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = userDataStore.role ? userDataStore.role.toLowerCase() : 'guest'; 
 
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('katalog-container'); 
         const token = localStorage.getItem('token');
 
         if (!token) {
-            container.innerHTML = '<tr><td colspan="7" class="py-5 text-center text-danger"><i class="bi bi-x-circle fs-1"></i><br>Sesi login habis. Silakan login ulang.</td></tr>';
+            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger"><i class="bi bi-x-circle fs-1"></i><br>Sesi login habis. Silakan login ulang.</td></tr>';
             return;
+        }
+
+        // role admin, munculin button tambah kambing
+        if (userRole === 'admin') {
+            document.getElementById('btn-tambah')?.classList.remove('d-none');
         }
 
         fetch('/api/kambing', {
@@ -137,7 +145,7 @@
                 container.innerHTML = ''; 
 
                 if (result.data.length === 0) { 
-                    container.innerHTML = '<tr><td colspan="7" class="py-5 text-center text-sub"><i class="bi bi-inbox fs-1"></i><br>Kandang masih kosong.</td></tr>'; 
+                    container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-sub"><i class="bi bi-inbox fs-1"></i><br>Kandang masih kosong.</td></tr>'; 
                     return; 
                 }
 
@@ -163,6 +171,7 @@
                         `; 
                     }
 
+                    // render row table w kolom berat skrg
                     let rowHTML = `
                         <tr>
                             <td class="fw-bold">${index + 1}</td> 
@@ -170,6 +179,9 @@
                             <td class="text-start fw-bold text-heading fs-6">${kambing.nama}</td>
                             <td><span class="badge" style="background-color: var(--icon-circle); color: var(--dark-green); border: 1px solid var(--border-divider);">${kambing.jenis}</span></td> 
                             <td class="fw-bold">${kambing.berat_awal} <small class="text-sub fw-normal">kg</small></td> 
+                            
+                            <td class="fw-bold text-success">${kambing.berat_sekarang ? kambing.berat_sekarang + ' <small class="text-sub fw-normal">kg</small>' : '-'}</td> 
+
                             <td><span class="badge ${statusClass} px-3 py-2 rounded-pill">${kambing.status_kondisi}</span></td> 
                             <td>${actionButtons}</td> 
                         </tr>
@@ -177,12 +189,12 @@
                     container.innerHTML += rowHTML; 
                 });
             } else {
-                container.innerHTML = '<tr><td colspan="7" class="py-5 text-center text-danger">Gagal mengambil data. Status: Bukan Success.</td></tr>'; 
+                container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal mengambil data. Status: Bukan Success.</td></tr>'; 
             }
         })
         .catch(error => { 
             console.error('API Error:', error); 
-            container.innerHTML = '<tr><td colspan="7" class="py-5 text-center text-danger"><i class="bi bi-exclamation-triangle fs-1"></i><br>Gagal memuat data API. Coba refresh halaman.</td></tr>'; 
+            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger"><i class="bi bi-exclamation-triangle fs-1"></i><br>Gagal memuat data API. Coba refresh halaman.</td></tr>'; 
         });
     });
 </script>

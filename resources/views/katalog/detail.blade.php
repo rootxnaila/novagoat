@@ -176,7 +176,7 @@
     }
 </style>
 
-<!-- Modal Konfirmasi Hapus -->
+<!-- konfirm delete -->
 <div class="modal-overlay" id="modal-hapus">
     <div class="modal-box">
         <h5><i class="bi bi-exclamation-triangle-fill" style="color:#E24B4A; margin-right:6px;"></i>Hapus Data Kambing?</h5>
@@ -277,10 +277,10 @@
     function renderActionButtons() {
         const btnEdit  = document.getElementById('btn-edit');
         const btnHapus = document.getElementById('btn-hapus');
-        if (userRole === 'Admin') {
+        if (userRole === 'admin') {
             btnEdit?.classList.remove('d-none');
             btnHapus?.classList.remove('d-none');
-        } else if (userRole === 'Anak_Kandang') {
+        } else if (userRole === 'anak_kandang') {
             btnEdit?.classList.remove('d-none');
         }
     }

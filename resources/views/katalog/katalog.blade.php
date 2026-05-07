@@ -166,7 +166,6 @@
 
                     if(userRole === 'admin') { 
                         actionButtons += `
-                            <button class="btn btn-sm btn-warning fw-bold text-dark mx-1" onclick="window.location.href='/katalog/edit/${kambing.id_kambing}'"><i class="bi bi-pencil"></i> Edit</button> 
                             <button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button> 
                         `; 
                     }

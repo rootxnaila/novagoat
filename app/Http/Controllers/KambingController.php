@@ -11,12 +11,25 @@ class KambingController extends Controller
     {
         $data_kambing = Kambing::all();
 
+        foreach ($data_kambing as $kambing) {
+            
+            $log_terbaru = \DB::table('log_berat')
+                ->where('id_kambing', $kambing->id_kambing)
+                ->orderBy('tanggal_timbang', 'desc')
+                ->orderBy('id_log', 'desc')
+                ->first();
+
+            $kambing->berat_sekarang = $log_terbaru ? $log_terbaru->berat_sekarang : null;
+        }
+
+        // balikin ke fe
         return response()->json([
             'status' => 'success',
             'message' => 'Data semua kambing berhasil ditarik',
             'data' => $data_kambing
         ]);
     }
+    
     public function show($id)
     {
         $kambing = Kambing::find($id); // fetch detail 1 kambing based on id. 

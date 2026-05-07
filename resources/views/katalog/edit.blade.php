@@ -168,7 +168,7 @@
 
 <script>
     const currentId  = "{{ $id }}";
-    const token      = localStorage.getItem('token_sakti');
+    const token      = localStorage.getItem('token');
     const apiHeaders = {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json'

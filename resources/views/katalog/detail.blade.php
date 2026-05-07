@@ -174,9 +174,118 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+
+    /* ===== Modal Input Berat ===== */
+    .modal-box-berat {
+        background: var(--bg-card);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        padding: 28px 32px;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 8px 32px rgba(27, 77, 30, 0.13);
+        animation: slideUp 0.22s ease;
+    }
+
+    @keyframes slideUp {
+        from { transform: translateY(24px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .modal-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+    }
+
+    .modal-input {
+        width: 100%;
+        background: var(--bg-input);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 14px;
+        color: var(--text-heading);
+        outline: none;
+        transition: border-color 0.18s;
+    }
+
+    .modal-input:focus {
+        border-color: var(--green-button);
+        background: #fff;
+    }
+
+    .modal-input::placeholder {
+        color: var(--text-placeholder);
+    }
+
+    .input-berat-wrap {
+        position: relative;
+    }
+
+    .input-berat-wrap .modal-input {
+        padding-right: 44px;
+    }
+
+    .input-unit {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-sub);
+        pointer-events: none;
+    }
+
+    .alert-modal-error {
+        background: #FCEBEB;
+        border: 1px solid #F09595;
+        color: #791F1F;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 14px;
+    }
+
+    .alert-modal-success {
+        background: #EAF3DE;
+        border: 1px solid #A5C8A7;
+        color: #27500A;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 14px;
+    }
+
+    .btn-close-x {
+        background: var(--bg-input);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        color: var(--text-sub);
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        flex-shrink: 0;
+    }
+
+    .btn-close-x:hover {
+        background: var(--border-color);
+    }
 </style>
 
-<!-- konfirm delete -->
+<!-- Modal Konfirmasi Hapus -->
 <div class="modal-overlay" id="modal-hapus">
     <div class="modal-box">
         <h5><i class="bi bi-exclamation-triangle-fill" style="color:#E24B4A; margin-right:6px;"></i>Hapus Data Kambing?</h5>
@@ -185,6 +294,43 @@
             <button class="btn-cancel-modal" onclick="tutupModal()">Batal</button>
             <button class="btn-confirm-delete" id="btn-confirm-hapus" onclick="konfirmasiHapus()">
                 <i class="bi bi-trash"></i> Ya, Hapus
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Input Berat -->
+<div class="modal-overlay" id="modal-input-berat">
+    <div class="modal-box-berat">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                Input Timbangan Baru
+            </h5>
+            <button class="btn-close-x" onclick="tutupModalBerat()">✕</button>
+        </div>
+
+        <div id="alert-berat"></div>
+
+        <div class="mb-3">
+            <label class="modal-label">Tanggal Timbang</label>
+            <input type="date" id="input-tanggal" class="modal-input">
+        </div>
+
+        <div class="mb-3">
+            <label class="modal-label">Berat Sekarang</label>
+            <div class="input-berat-wrap">
+                <input type="number" id="input-berat-val" class="modal-input"
+                       placeholder="Contoh: 47.5" step="0.1" min="0">
+                <span class="input-unit">kg</span>
+            </div>
+        </div>
+
+        <hr style="border-color: var(--border-color); opacity: 1; margin: 18px 0;">
+
+        <div class="modal-actions">
+            <button class="btn-cancel-modal" onclick="tutupModalBerat()">Batal</button>
+            <button class="btn btn-green btn-sm fw-bold px-3 shadow-sm" id="btn-simpan-berat" onclick="simpanBerat()">
+                <i class="bi bi-save"></i> Simpan
             </button>
         </div>
     </div>
@@ -253,7 +399,9 @@
             <div class="card card-custom h-100 border-0">
                 <div class="card-header border-0 d-flex justify-content-between align-items-center">
                     <span>Riwayat Timbangan</span>
-                    <button class="btn btn-green btn-sm fw-bold shadow-sm" onclick="alert('Fitur Input Berat')">Input Berat</button>
+                    <button class="btn btn-green btn-sm fw-bold shadow-sm" onclick="bukaModalBerat()">
+                        <i class="bi bi-plus-lg"></i> Input Berat
+                    </button>
                 </div>
                 <div class="card-body p-0">
                     <table class="table table-hover mb-0">
@@ -269,11 +417,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const currentId  = window.location.pathname.split('/').pop();
-    const token      = localStorage.getItem('token_sakti');
+    const token      = localStorage.getItem('token');
     const userData   = JSON.parse(localStorage.getItem('user') || '{}');
     const userRole   = userData?.role || '';
     const apiHeaders = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' };
 
+    // =====================
+    // ROLE-BASED BUTTONS
+    // =====================
     function renderActionButtons() {
         const btnEdit  = document.getElementById('btn-edit');
         const btnHapus = document.getElementById('btn-hapus');
@@ -285,6 +436,9 @@
         }
     }
 
+    // =====================
+    // MODAL HAPUS
+    // =====================
     function bukaModal() {
         document.getElementById('modal-hapus').classList.add('show');
     }
@@ -323,6 +477,80 @@
         });
     }
 
+    // =====================
+    // MODAL INPUT BERAT
+    // =====================
+    function bukaModalBerat() {
+        document.getElementById('alert-berat').innerHTML = '';
+        document.getElementById('input-berat-val').value = '';
+        document.getElementById('input-tanggal').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modal-input-berat').classList.add('show');
+    }
+
+    function tutupModalBerat() {
+        document.getElementById('modal-input-berat').classList.remove('show');
+    }
+
+    function simpanBerat() {
+        const tanggal = document.getElementById('input-tanggal').value;
+        const berat   = document.getElementById('input-berat-val').value;
+        const alertEl = document.getElementById('alert-berat');
+
+        alertEl.innerHTML = '';
+
+        if (!tanggal) {
+            alertEl.innerHTML = `<div class="alert-modal-error"><i class="bi bi-exclamation-circle me-1"></i>Tanggal tidak boleh kosong.</div>`;
+            return;
+        }
+        if (!berat || parseFloat(berat) <= 0) {
+            alertEl.innerHTML = `<div class="alert-modal-error"><i class="bi bi-exclamation-circle me-1"></i>Masukkan berat yang valid.</div>`;
+            return;
+        }
+
+        const btn = document.getElementById('btn-simpan-berat');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+
+        fetch(`/api/kambing/${currentId}/timbang`, {
+            method: 'POST',
+            headers: { ...apiHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tanggal: tanggal,
+                berat: parseFloat(berat)
+            })
+        })
+        .then(res => res.json().then(data => ({ ok: res.ok, data })))
+        .then(({ ok, data }) => {
+            if (ok) {
+                alertEl.innerHTML = `<div class="alert-modal-success"><i class="bi bi-check-circle me-1"></i>${data.message || 'Berat berhasil disimpan!'}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-save"></i> Simpan';
+                setTimeout(() => {
+                    tutupModalBerat();
+                    location.reload();
+                }, 1200);
+            } else {
+                throw new Error(data.message || 'Gagal menyimpan data.');
+            }
+        })
+        .catch(err => {
+            alertEl.innerHTML = `<div class="alert-modal-error"><i class="bi bi-exclamation-circle me-1"></i>${err.message}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-save"></i> Simpan';
+        });
+    }
+
+    // Tutup modal kalau klik di luar box
+    document.getElementById('modal-input-berat').addEventListener('click', function(e) {
+        if (e.target === this) tutupModalBerat();
+    });
+    document.getElementById('modal-hapus').addEventListener('click', function(e) {
+        if (e.target === this) tutupModal();
+    });
+
+    // =====================
+    // LOAD DATA KAMBING
+    // =====================
     document.addEventListener("DOMContentLoaded", function() {
         renderActionButtons();
 

@@ -362,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             kambingSelect.value = list[0].id_kambing;
             loadData(list[0].id_kambing);
+            loadJadwal(list[0].id_kambing); 
         } catch(e) {}
     };
 

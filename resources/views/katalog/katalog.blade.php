@@ -83,9 +83,9 @@
             <small class="text-sub">Manajemen Data Seluruh Kambing di Peternakan</small>
         </div>
         
-        <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" onclick="window.location.href='/katalog/tambah'">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
-        </button> 
+       <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" data-bs-toggle="modal" data-bs-target="#NAMA_ID_MODAL_NOVA">
+        <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
+        <button>
         
     </div>
     

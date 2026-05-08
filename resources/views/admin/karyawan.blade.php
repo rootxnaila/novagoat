@@ -109,8 +109,7 @@
         </button>
     </div>
 
-<!--tabel card-->
-    <div class="card card-nova overflow-hidden">
+<div class="card card-nova overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-nova table-hover text-center mb-0">
@@ -166,7 +165,6 @@
     </div>
 </div>
 
-<!-- Script Fetch Data & Simpan Karyawan -->
 <script>
     const token = localStorage.getItem('token');
     if (!token) { window.location.href = '/login'; }
@@ -193,7 +191,9 @@
                         <td class="py-3"><span class="badge badge-timbang fs-6 px-3 py-2 rounded-pill">${karyawan.log_berat_count} Kali</span></td>
                         <td class="py-3"><span class="badge badge-medis fs-6 px-3 py-2 rounded-pill">${karyawan.jadwal_medis_count} Tindakan</span></td>
                         <td class="py-3">
-                            <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="alert('Fitur dinonaktifkan sementara untuk presentasi')"><i class="bi bi-slash-circle me-1"></i>Nonaktifkan</button>
+                            <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" onclick="nonaktifkanKaryawan(${karyawan.id_user})">
+                                <i class="bi bi-slash-circle me-1"></i>Nonaktifkan
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -237,5 +237,33 @@
         })
         .catch(error => console.error('Error:', error));
     });
+
+    // FUNGSI NONAKTIFKAN KARYAWAN
+    window.nonaktifkanKaryawan = function(id_user) {
+        if (!confirm('Yakin ingin menonaktifkan (menghapus akses) karyawan ini?')) {
+            return; 
+        }
+
+        fetch(`/api/karyawan/${id_user}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                alert('Akses karyawan berhasil ditutup!');
+                location.reload(); // otomaatis refresh biar data di tabel hilang
+            } else {
+                alert('Gagal: ' + result.message);
+            }
+        })
+        .catch(error => {
+            console.error('API Error:', error);
+            alert('Terjadi kesalahan pada server saat memproses data.');
+        });
+    };
 </script>
 @endsection

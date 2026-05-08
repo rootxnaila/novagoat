@@ -12,7 +12,8 @@
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/karyawan/kinerja', [App\Http\Controllers\AuthController::class, 'getKinerjaKaryawan'])->middleware('auth:sanctum');   
+        Route::get('/karyawan/kinerja', [App\Http\Controllers\AuthController::class, 'getKinerjaKaryawan'])->middleware('auth:sanctum');
+        Route::delete('/karyawan/{id}', [Authgit add .Controller::class, 'hapusKaryawan']);   
 
     Route::get('/kambing', [KambingController::class, 'index']);
     Route::get('/kambing/{id}', [KambingController::class, 'show']);

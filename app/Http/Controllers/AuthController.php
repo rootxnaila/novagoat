@@ -62,7 +62,7 @@ class AuthController extends Controller
         $user = User::create([
             'username' => $request->username,
             // pw  di enkripsi (di hash) biar ga kelihatan di db
-            'password' => Hash::make($request->password), 
+            'p assword' => Hash::make($request->password), 
             'role'     => $request->role,
         ]);
 
@@ -83,6 +83,24 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $karyawan
+        ]);
+    }
+    public function hapusKaryawan($id)
+    {
+        $user = \App\Models\User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Karyawan tidak ditemukan'
+            ], 404);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Akses karyawan berhasil dinonaktifkan (dihapus)!'
         ]);
     }
 }

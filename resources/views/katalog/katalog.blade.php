@@ -83,9 +83,9 @@
             <small class="text-sub">Manajemen Data Seluruh Kambing di Peternakan</small>
         </div>
         
-       <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" data-bs-toggle="modal" data-bs-target="#NAMA_ID_MODAL_NOVA">
+        <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" data-bs-toggle="modal" data-bs-target="#modalTambahKambing">
         <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
-        <button>
+       </button>
         
     </div>
     
@@ -114,8 +114,66 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTambahKambing" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header border-bottom" style="background-color: var(--page-bg);">
+                <h5 class="modal-title fw-bold text-heading">
+                    <i class="bi bi-plus-circle-fill me-2" style="color: var(--medium-green);"></i>Tambah Kambing Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formTambahKambing">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-sub">NAMA KAMBING</label>
+                        <input type="text" name="nama" class="form-control" placeholder="Contoh: Mbek Alpha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-sub">JENIS / RAS</label>
+                        <select name="jenis" class="form-select" required>
+                            <option value="" disabled selected>-- Pilih Jenis Kambing --</option>
+                            <option value="Boer">Boer</option>
+                            <option value="Boerka">Boerka</option>
+                            <option value="Etawa">Etawa</option>
+                            <option value="PE">PE (Peranakan Etawa)</option>
+                            <option value="Kacang">Kambing Kacang</option>
+                            <option value="Senduro">Senduro</option>
+                            <option value="Lainnya">Lainnya / Campuran</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-sub">BERAT AWAL (KG)</label>
+                            <input type="number" step="0.1" name="berat_awal" class="form-control" placeholder="0.0" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-sub">STATUS KONDISI</label>
+                            <select name="status_kondisi" class="form-select" required>
+                                <option value="Sehat">Sehat</option>
+                                <option value="Sakit">Sakit / Perawatan</option>
+                                <option value="Karantina">Karantina</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-sub">URL GAMBAR (Opsional)</label>
+                        <input type="file" name="gambar" class="form-control" accept="image/*" capture="environment">
+                        <small class="text-muted" style="font-size: 11px;">Bisa pilih dari galeri atau langsung foto dari kamera HP.</small>
+                        <small class="text-muted" style="font-size: 11px;">Kosongkan jika ingin pakai gambar default.</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-sm btn-nova-primary px-4 rounded-pill shadow-sm">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-    //role dr localstorage, kebal uppercase
+    //ambil role dr localstorage
     const userDataStore = JSON.parse(localStorage.getItem('user') || '{}');
     const userRole = userDataStore.role ? userDataStore.role.toLowerCase() : 'guest'; 
 
@@ -128,8 +186,8 @@
             return;
         }
 
-        // role admin, munculin button tambah kambing
-        if (userRole === 'admin') {
+        //munculin button tambah kambing
+        if (userRole === 'admin' || userRole === 'anak_kandang') {
             document.getElementById('btn-tambah')?.classList.remove('d-none');
         }
 
@@ -150,51 +208,85 @@
                 }
 
                 result.data.forEach((kambing, index) => { 
-                    
-                    let gambarUrl = '/images/default_kambing.jpg'; //fallback default
+                    let gambarUrl = '/images/default_kambing.jpg'; 
                     if (kambing.gambar) {
-                        if (kambing.gambar.startsWith('http')) {
-                            gambarUrl = kambing.gambar; 
-                        } else {
-                            gambarUrl = `/images/kambing/${kambing.gambar}`; 
-                        }
+                        gambarUrl = kambing.gambar.startsWith('http') ? kambing.gambar : `/images/kambing/${kambing.gambar}`; 
                     }
 
                     let statusClass = kambing.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-warning text-dark'; 
-
                     let actionButtons = `<a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-sm btn-nova-outline fw-bold mx-1"><i class="bi bi-eye"></i> Detail</a>`; 
 
                     if(userRole === 'admin') { 
-                        actionButtons += `
-                            <button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button> 
-                        `; 
+                        actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button>`; 
                     }
 
-                    // render row table w kolom berat skrg
                     let rowHTML = `
                         <tr>
                             <td class="fw-bold">${index + 1}</td> 
-                            <td><img src="${gambarUrl}" class="img-kambing" alt="Foto Kambing" onerror="this.onerror=null; this.src='/images/default_kambing.jpg';"></td> 
+                            <td><img src="${gambarUrl}" class="img-kambing" alt="Foto" onerror="this.onerror=null; this.src='/images/default_kambing.jpg';"></td> 
                             <td class="text-start fw-bold text-heading fs-6">${kambing.nama}</td>
                             <td><span class="badge" style="background-color: var(--icon-circle); color: var(--dark-green); border: 1px solid var(--border-divider);">${kambing.jenis}</span></td> 
-                            <td class="fw-bold">${kambing.berat_awal} <small class="text-sub fw-normal">kg</small></td> 
-                            
-                            <td class="fw-bold text-success">${kambing.berat_sekarang ? kambing.berat_sekarang + ' <small class="text-sub fw-normal">kg</small>' : '-'}</td> 
-
+                            <td class="fw-bold">${kambing.berat_awal} <small class="text-sub">kg</small></td> 
+                            <td class="fw-bold text-success">${kambing.berat_sekarang ? kambing.berat_sekarang + ' <small class="text-sub">kg</small>' : '-'}</td> 
                             <td><span class="badge ${statusClass} px-3 py-2 rounded-pill">${kambing.status_kondisi}</span></td> 
                             <td>${actionButtons}</td> 
-                        </tr>
-                    `; 
+                        </tr>`; 
                     container.innerHTML += rowHTML; 
                 });
             } else {
-                container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal mengambil data. Status: Bukan Success.</td></tr>'; 
+                container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal mengambil data.</td></tr>'; 
             }
         })
         .catch(error => { 
             console.error('API Error:', error); 
-            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger"><i class="bi bi-exclamation-triangle fs-1"></i><br>Gagal memuat data API. Coba refresh halaman.</td></tr>'; 
+            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal memuat data API.</td></tr>'; 
         });
-    });
+
+        document.getElementById('formTambahKambing')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const btnSubmit = this.querySelector('button[type="submit"]');
+            const originalText = btnSubmit.innerHTML;
+            
+            btnSubmit.innerHTML = 'Mengupload...';
+            btnSubmit.disabled = true;
+
+            fetch('/api/kambing', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData 
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success') {
+                    alert('Kambing & Foto berhasil ditambahkan!');
+                    location.reload(); 
+                } else {
+                    alert(result.message || 'Cek kembali data form');
+                    btnSubmit.innerHTML = originalText;
+                    btnSubmit.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error Save:', error);
+                alert('Terjadi kesalahan pada server.');
+                btnSubmit.innerHTML = originalText;
+                btnSubmit.disabled = false;
+            });
+        });
+    }); 
+
+    window.deleteKambing = function(id) {
+        if(!confirm('Yakin mau hapus kambing ini?')) return;
+        const token = localStorage.getItem('token');
+        fetch(`/api/kambing/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
+        })
+        .then(() => location.reload());
+    }
 </script>
 @endsection

@@ -61,7 +61,6 @@
         </div>
     </div>
 
-    <!-- 4 Kotak Metrik Utama -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
             <div class="metric-card p-4">
@@ -88,12 +87,12 @@
         <div class="col-md-3">
             <div class="metric-card p-4" style="border-left-color: #f39c12;">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="card-title-nova text-warning">Jadwal Medis</div>
+                    <div class="card-title-nova text-warning">Jadwal Hari Ini</div>
                     <div class="icon-box" style="background-color: #fef5e7; color: #f39c12;">
                         <i class="bi bi-calendar-event-fill"></i>
                     </div>
                 </div>
-                <div class="card-value-nova" id="val-jadwal">...</div> <!-- Angka dummy medis sementara -->
+                <div class="card-value-nova" id="val-jadwal">0</div>
             </div>
         </div>
         <div class="col-md-3">
@@ -109,14 +108,26 @@
         </div>
     </div>
 
-    <!-- grafik karyawan -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="chart-container">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="chart-container h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="fw-bold mb-0" style="color: var(--heading-text);"><i class="bi bi-bar-chart-line-fill me-2" style="color: var(--medium-green);"></i> Grafik Kinerja Anak Kandang</h5>
+                    <h5 class="fw-bold mb-0" style="color: var(--heading-text);"><i class="bi bi-pie-chart-fill me-2" style="color: var(--medium-green);"></i> Distribusi Ras Kambing</h5>
                 </div>
-                <canvas id="kinerjaChart" height="80"></canvas>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="chartRas"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="chart-container h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0" style="color: var(--heading-text);"><i class="bi bi-heart-pulse-fill me-2" style="color: #e74c3c;"></i> Status Kesehatan Kandang</h5>
+                </div>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="chartKesehatan"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -143,65 +154,86 @@
         const namaBosEl = document.getElementById('namaBos');
         if(namaBosEl) namaBosEl.innerText = user.username;
 
-        // 1. Fetch Data Kambing
-        fetch('/api/kambing', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
-        .then(res => res.json())
-        .then(result => {
-            if(result.status === 'success') {
-                document.getElementById('val-kambing').innerText = result.data.length;
-                const sakit = result.data.filter(k => k.status_kondisi !== 'Sehat').length;
-                document.getElementById('val-sakit').innerText = sakit;
-            }
-        })
-        .catch(err => console.error('Error Kambing:', err));
-
-        // 2. Fetch Data Kinerja Karyawan (Chart)
+        // 1. Fetch Jumlah Anak Kandang (Pekerja)
         fetch('/api/karyawan/kinerja', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
         .then(res => res.json())
         .then(result => {
             if(result.status === 'success') {
-                const pekerja = result.data;
-                document.getElementById('val-pekerja').innerText = pekerja.length;
-
-                const labels = pekerja.map(p => p.username);
-                const dataTimbang = pekerja.map(p => p.log_berat_count);
-                const dataMedis = pekerja.map(p => p.jadwal_medis_count);
-
-                const ctx = document.getElementById('kinerjaChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            { label: 'Input Berat Kambing', data: dataTimbang, backgroundColor: '#A5C8A7', borderRadius: 6 },
-                            { label: 'Tindakan Medis', data: dataMedis, backgroundColor: '#2E7D32', borderRadius: 6 }
-                        ]
-                    },
-                    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
-                });
+                document.getElementById('val-pekerja').innerText = result.data.length;
             }
-        })
-        .catch(err => console.error('Error Kinerja:', err));
+        }).catch(err => console.error('Error Kinerja:', err));
 
-        // 3. Fetch Jadwal Medis (Hanya yang statusnya 'Belum')
-        fetch('/api/jadwal-medis?status=Belum', { 
-            headers: { 
-                'Authorization': 'Bearer ' + token, 
-                'Accept': 'application/json' 
-            }
-        })
+        // 2. Fetch Statistik Utama & Data Grafik dari Controller Baru
+        fetch('/api/dashboard/stats', { headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }})
         .then(res => res.json())
         .then(result => {
             if(result.status === 'success') {
-                document.getElementById('val-jadwal').innerText = result.data.length;
-            } else {
-                document.getElementById('val-jadwal').innerText = '0';
+                const data = result.data;
+                
+                // Update Angka Metrik
+                document.getElementById('val-kambing').innerText = data.total_kambing;
+                document.getElementById('val-sakit').innerText = data.kambing_sakit;
+                document.getElementById('val-jadwal').innerText = data.jadwal_hari_ini;
+
+                // Render 2 Grafik Baru
+                renderChartRas(data.sebaran_ras);
+                renderChartKesehatan(data.status_kesehatan);
             }
         })
-        .catch(error => {
-            console.error('API Error (Jadwal):', error);
-            document.getElementById('val-jadwal').innerText = '0';
-        });
+        .catch(err => console.error('Error Dashboard Stats:', err));
+
+        // Fungsi Render Chart Ras (Donat)
+        function renderChartRas(data) {
+            if(!data || data.length === 0) return; // Skip kalo kosong
+            const ctx = document.getElementById('chartRas').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(item => item.label),
+                    datasets: [{
+                        data: data.map(item => item.total),
+                        backgroundColor: ['#1B4D1E', '#2E7D32', '#A5C8A7', '#D6EDD7', '#C8DAC9'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 15, font: { size: 12 } } }
+                    }
+                }
+            });
+        }
+
+        // Fungsi Render Chart Kesehatan (Batang)
+        function renderChartKesehatan(data) {
+            if(!data || data.length === 0) return; // Skip kalo kosong
+            const ctx = document.getElementById('chartKesehatan').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(item => item.label),
+                    datasets: [{
+                        label: 'Jumlah Ekor',
+                        data: data.map(item => item.total),
+                        // Kalo statusnya 'Sehat' warnanya ijo, selain itu (Sakit/Karantina) warnanya merah/orange
+                        backgroundColor: data.map(item => item.label === 'Sehat' ? '#2E7D32' : '#e74c3c'),
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } } // Sembunyin legend karena udah jelas di label X
+                }
+            });
+        }
     });
 </script>
 @endsection

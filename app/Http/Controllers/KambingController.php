@@ -47,29 +47,36 @@ class KambingController extends Controller
         ]);
     }
 
-    // handle insert new data dari form frontend.
     public function store(Request $request)
     {
-        // validate request payload-nya, make sure data required pada keisi
         $request->validate([
             'nama' => 'required|string',
             'jenis' => 'required|string',
             'berat_awal' => 'required|numeric',
             'status_kondisi' => 'required|string',
-            'gambar' => 'nullable|string'
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048' 
         ]);
-        // trus create data baru ke db, pake default image fallback usernya ga ngirim url gambar
+
+        $namaGambar = null;
+        if ($request->hasFile('gambar')) {
+            $file = $request->file('gambar');
+            // Bikin nama file unik pake timestamp biar ga bentrok
+            $namaGambar = time() . '_' . $file->getClientOriginalName(); 
+            // Pindahin file langsung ke folder public/images/kambing
+            $file->move(public_path('images/kambing'), $namaGambar);
+        }
+
         $kambingBaru = Kambing::create([
             'nama' => $request->nama,
             'jenis' => $request->jenis,
             'berat_awal' => $request->berat_awal,
             'status_kondisi' => $request->status_kondisi,
-            'gambar' => $request->gambar ?? 'https://trubus.id/wp-content/uploads/2022/09/Enam-Keunggulan-Kambing-Boerka-696x516.jpg'
+            'gambar' => $namaGambar 
         ]);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'data kambing berhasil ditambahkan!',
+            'message' => 'Data kambing dan foto berhasil ditambahkan!',
             'data' => $kambingBaru
         ], 201);
     }

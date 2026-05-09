@@ -113,7 +113,7 @@
                 const container = document.getElementById('loginContainer');
                 Object.assign(container.style, { transition: '1s ease', opacity: '0', transform: 'scale(1.05)', filter: 'blur(10px)' });
                 
-                setTimeout(() => window.location.href = result.data.user.role === 'Admin' ? '/dashboard' : '/katalog', 1000);
+                setTimeout(() => window.location.href = result.data.user.role === 'admin' ? '/dashboard' : '/katalog', 1000);
             } else {
                 throw new Error(result.message || 'Login gagal');
             }

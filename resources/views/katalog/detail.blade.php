@@ -95,7 +95,6 @@
         font-weight: 600;
     }
 
-    /* Foto kambing responsive */
     .foto-kambing {
         width: 100%;
         max-height: 320px;
@@ -105,20 +104,18 @@
         border: 1px solid var(--border-color);
     }
 
-    /* Nama tidak overflow */
     #kambing-nama {
         font-size: clamp(1.4rem, 5vw, 2.5rem);
         word-break: break-word;
     }
 
-    /* Tombol aksi wrap di HP */
     .aksi-buttons {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
     }
 
-    /* ===== Modal ===== */
+    /* ===== Modal Input Berat ===== */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -133,61 +130,6 @@
     .modal-overlay.show {
         display: flex;
     }
-
-    .modal-box {
-        background: var(--bg-card);
-        border-radius: 16px;
-        border: 1px solid var(--border-color);
-        padding: 28px 24px;
-        max-width: 380px;
-        width: 100%;
-    }
-
-    .modal-box h5 {
-        color: var(--text-heading);
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .modal-box p {
-        color: var(--text-sub);
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .btn-cancel-modal {
-        background: var(--bg-input);
-        color: var(--text-sub);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-
-    .btn-cancel-modal:hover { background: var(--border-color); }
-
-    .btn-confirm-delete {
-        background: #E24B4A;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-
-    .btn-confirm-delete:hover { background: #A32D2D; }
-    .btn-confirm-delete:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .modal-box-berat {
         background: var(--bg-card);
@@ -270,6 +212,26 @@
         margin-bottom: 14px;
     }
 
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-cancel-modal {
+        background: var(--bg-input);
+        color: var(--text-sub);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 7px 18px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .btn-cancel-modal:hover { background: var(--border-color); }
+
     .btn-close-x {
         background: var(--bg-input);
         border: 1px solid var(--border-color);
@@ -288,7 +250,6 @@
 
     .btn-close-x:hover { background: var(--border-color); }
 
-    /* ===== Grafik & Riwayat stack di HP ===== */
     @media (max-width: 768px) {
         .dashboard-container {
             margin-top: 20px;
@@ -307,33 +268,17 @@
             flex-direction: column;
         }
 
-        /* Tabel riwayat tidak overflow */
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Info tabel wrappable */
         .table td, .table th {
             white-space: normal;
             word-break: break-word;
         }
     }
 </style>
-
-<!-- Modal Konfirmasi Hapus -->
-<div class="modal-overlay" id="modal-hapus">
-    <div class="modal-box">
-        <h5><i class="bi bi-exclamation-triangle-fill" style="color:#E24B4A; margin-right:6px;"></i>Hapus Data Kambing?</h5>
-        <p>Data yang dihapus tidak dapat dikembalikan. Yakin ingin menghapus kambing ini?</p>
-        <div class="modal-actions">
-            <button class="btn-cancel-modal" onclick="tutupModal()">Batal</button>
-            <button class="btn-confirm-delete" id="btn-confirm-hapus" onclick="konfirmasiHapus()">
-                <i class="bi bi-trash"></i> Ya, Hapus
-            </button>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Input Berat -->
 <div class="modal-overlay" id="modal-input-berat">
@@ -389,7 +334,6 @@
             </div>
 
             <div class="col-12 col-md-7">
-                <!-- Nama + Tombol -->
                 <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
                     <div>
                         <h1 id="kambing-nama" class="fw-bold mb-1"></h1>
@@ -401,7 +345,7 @@
                             <i class="bi bi-pencil-square"></i> EDIT
                         </button>
                         <button id="btn-hapus" class="btn btn-outline-danger-custom btn-sm fw-bold px-3 shadow-sm d-none"
-                                onclick="bukaModal()">
+                                onclick="hapusKambing()">
                             <i class="bi bi-trash"></i> HAPUS
                         </button>
                     </div>
@@ -487,18 +431,10 @@
         }
     }
 
-    function bukaModal() {
-        document.getElementById('modal-hapus').classList.add('show');
-    }
-
-    function tutupModal() {
-        document.getElementById('modal-hapus').classList.remove('show');
-    }
-
-    function konfirmasiHapus() {
-        const btn = document.getElementById('btn-confirm-hapus');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
+    function hapusKambing() {
+        const nama = document.getElementById('kambing-nama').innerText;
+        const yakin = confirm('Yakin ingin menghapus kambing "' + nama + '"?');
+        if (!yakin) return;
 
         fetch(`/api/kambing/${currentId}`, {
             method: 'DELETE',
@@ -510,16 +446,14 @@
         })
         .then(res => {
             if (res.ok) {
+                alert('Data kambing berhasil dihapus!');
                 window.location.href = '/katalog';
             } else {
                 return res.json().then(data => { throw new Error(data.message || 'Gagal menghapus data.'); });
             }
         })
         .catch(err => {
-            tutupModal();
             alert('Gagal menghapus: ' + err.message);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-trash"></i> Ya, Hapus';
         });
     }
 
@@ -579,9 +513,6 @@
 
     document.getElementById('modal-input-berat').addEventListener('click', function(e) {
         if (e.target === this) tutupModalBerat();
-    });
-    document.getElementById('modal-hapus').addEventListener('click', function(e) {
-        if (e.target === this) tutupModal();
     });
 
     document.addEventListener("DOMContentLoaded", function() {

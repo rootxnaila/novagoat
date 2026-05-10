@@ -62,7 +62,7 @@ class AuthController extends Controller
         $user = User::create([
             'username' => $request->username,
             // pw  di enkripsi (di hash) biar ga kelihatan di db
-            'p assword' => Hash::make($request->password), 
+            'password' => Hash::make($request->password), 
             'role'     => $request->role,
         ]);
 

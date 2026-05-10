@@ -17,14 +17,6 @@
         </ul>
     </nav>
 
-    <div class="header-right d-flex align-items-center gap-3">
-    @if(Request::is('katalog*'))
-    <div class="search-wrapper" id="searchWrapper">
-        <input type="text" class="search-input" placeholder="Cari data kambing..." id="searchInput">
-        <button class="search-pill" id="searchPill" onclick="toggleSearch()">search</button>
-        <span class="close-search" onclick="toggleSearch()" id="closeSearch">&times;</span>
-    </div>
-    @endif
     
     <div id="userDropdown" class="dropdown" style="display:none;">
         <button class="btn rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Menu Akun" style="width: 38px; height: 38px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white;">

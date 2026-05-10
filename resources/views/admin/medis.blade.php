@@ -81,16 +81,17 @@
 </style>
 
 <div class="container" style="padding-top: 40px; padding-bottom: 100px; min-height: 100vh;">
-    <div class="d-flex justify-content-between align-items-center mb-5 px-4">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-5 px-4 gap-3">
         <div>
             <h2 class="fw-bold" style="color: var(--heading-text);">Jadwal Medis & Vaksin</h2>
             <p class="mb-0 font-monospace" style="font-size: 0.85rem; color: var(--sub-text);">Monitoring kesehatan dan jadwal imunisasi ternak.</p>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <select id="kambingSelect" class="form-select form-select-sm border-0 shadow-sm" style="width: 220px; background-color: var(--card-white); color: var(--heading-text); border-radius: 10px;">
+        <div class="d-flex flex-column flex-sm-row align-items-stretch gap-2 w-100" style="max-width: 400px;">
+            <select id="kambingSelect" class="form-select form-select-sm border-0 shadow-sm w-100" style="background-color: var(--card-white); color: var(--heading-text); border-radius: 10px; height: 38px;">
                 <option value="" disabled selected>Pilih Kambing...</option>
             </select>
-            <button class="btn btn-nature btn-nature-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
+            <button class="btn btn-nature btn-nature-primary btn-sm shadow-sm w-100 text-nowrap" style="height: 38px;" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
         </div>
     </div>
 
@@ -121,9 +122,9 @@
     <div class="row g-3 px-4">
         <div class="col-lg-8">
             <div class="card card-nature shadow-sm animate-up delay-4" style="overflow: hidden;">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center" style="background-color: var(--card-white); border-bottom: 1px solid var(--border-divider);">
+                <div class="card-header py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2" style="background-color: var(--card-white); border-bottom: 1px solid var(--border-divider);">
                     <h6 class="m-0 fw-bold" style="font-size: 0.8rem; color: var(--dark-green);">Grafik Monitor Berat Badan Kambing</h6>
-                    <div class="px-3 py-1 rounded-pill" style="border: 1px solid var(--border-divider); background-color: var(--page-bg);">
+                    <div class="px-3 py-1 rounded-pill text-nowrap align-self-start align-self-sm-auto" style="border: 1px solid var(--border-divider); background-color: var(--page-bg);">
                         <span class="fw-bold" style="font-size: 10px; color: var(--sub-text);">BERAT BADAN (KG)</span>
                     </div>
                 </div>
@@ -407,9 +408,9 @@ document.addEventListener('DOMContentLoaded', function() {
     handleForm('formJadwalMedis', '/api/jadwal-medis', 'POST', loadJadwal);
 
     kambingSelect.addEventListener('change', (e) => {
-    loadData(e.target.value);   //update grafik
-    loadJadwal(e.target.value); //update agenda vaksin sesuai kambing
-});
+        loadData(e.target.value);   //update grafik
+        loadJadwal(e.target.value); //update agenda vaksin sesuai kambing
+    });
     
     window.updateStatus = async (id) => {
         if (!confirm('Sudah dilakukan?')) return;
@@ -420,6 +421,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     loadKambing();
-    });
+});
 </script>
 @endsection

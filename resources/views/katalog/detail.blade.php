@@ -30,6 +30,8 @@
     .dashboard-container {
         margin-top: 100px;
         padding-bottom: 60px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .card-custom {
@@ -54,10 +56,6 @@
 
     .table tbody td {
         border-color: var(--border-color);
-    }
-
-    .display-5 {
-        color: var(--text-heading) !important;
     }
 
     .badge-sehat {
@@ -99,6 +97,29 @@
         font-weight: 600;
     }
 
+    /* Foto kambing responsive */
+    .foto-kambing {
+        width: 100%;
+        max-height: 320px;
+        object-fit: cover;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+    }
+
+    /* Nama tidak overflow */
+    #kambing-nama {
+        font-size: clamp(1.4rem, 5vw, 2.5rem);
+        word-break: break-word;
+    }
+
+    /* Tombol aksi wrap di HP */
+    .aksi-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* ===== Modal ===== */
     .modal-overlay {
         display: none;
         position: fixed;
@@ -107,6 +128,7 @@
         z-index: 9999;
         align-items: center;
         justify-content: center;
+        padding: 16px;
     }
 
     .modal-overlay.show {
@@ -117,9 +139,9 @@
         background: var(--bg-card);
         border-radius: 16px;
         border: 1px solid var(--border-color);
-        padding: 28px 32px;
+        padding: 28px 24px;
         max-width: 380px;
-        width: 90%;
+        width: 100%;
     }
 
     .modal-box h5 {
@@ -138,6 +160,7 @@
         display: flex;
         justify-content: flex-end;
         gap: 10px;
+        flex-wrap: wrap;
     }
 
     .btn-cancel-modal {
@@ -151,9 +174,7 @@
         cursor: pointer;
     }
 
-    .btn-cancel-modal:hover {
-        background: var(--border-color);
-    }
+    .btn-cancel-modal:hover { background: var(--border-color); }
 
     .btn-confirm-delete {
         background: #E24B4A;
@@ -166,23 +187,16 @@
         cursor: pointer;
     }
 
-    .btn-confirm-delete:hover {
-        background: #A32D2D;
-    }
+    .btn-confirm-delete:hover { background: #A32D2D; }
+    .btn-confirm-delete:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    .btn-confirm-delete:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* ===== Modal Input Berat ===== */
     .modal-box-berat {
         background: var(--bg-card);
         border-radius: 16px;
         border: 1px solid var(--border-color);
-        padding: 28px 32px;
+        padding: 28px 24px;
         max-width: 420px;
-        width: 90%;
+        width: 100%;
         box-shadow: 0 8px 32px rgba(27, 77, 30, 0.13);
         animation: slideUp 0.22s ease;
     }
@@ -219,17 +233,10 @@
         background: #fff;
     }
 
-    .modal-input::placeholder {
-        color: var(--text-placeholder);
-    }
+    .modal-input::placeholder { color: var(--text-placeholder); }
 
-    .input-berat-wrap {
-        position: relative;
-    }
-
-    .input-berat-wrap .modal-input {
-        padding-right: 44px;
-    }
+    .input-berat-wrap { position: relative; }
+    .input-berat-wrap .modal-input { padding-right: 44px; }
 
     .input-unit {
         position: absolute;
@@ -280,8 +287,38 @@
         flex-shrink: 0;
     }
 
-    .btn-close-x:hover {
-        background: var(--border-color);
+    .btn-close-x:hover { background: var(--border-color); }
+
+    /* ===== Grafik & Riwayat stack di HP ===== */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            margin-top: 80px;
+        }
+
+        .section-top {
+            flex-direction: column;
+        }
+
+        .aksi-header {
+            margin-top: 12px;
+            justify-content: flex-start !important;
+        }
+
+        .grafik-riwayat-row {
+            flex-direction: column;
+        }
+
+        /* Tabel riwayat tidak overflow */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Info tabel wrappable */
+        .table td, .table th {
+            white-space: normal;
+            word-break: break-word;
+        }
     }
 </style>
 
@@ -303,9 +340,7 @@
 <div class="modal-overlay" id="modal-input-berat">
     <div class="modal-box-berat">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">
-                Input Timbangan Baru
-            </h5>
+            <h5 class="mb-0">Input Timbangan Baru</h5>
             <button class="btn-close-x" onclick="tutupModalBerat()">✕</button>
         </div>
 
@@ -336,81 +371,101 @@
     </div>
 </div>
 
-<div class="container dashboard-container">
+<div class="container-fluid dashboard-container">
+
     <div id="loading-detail" class="text-center">
         <div class="spinner-border" role="status" style="color: var(--green-button);"></div>
         <p class="mt-2" style="color: var(--text-sub);">Memuat data...</p>
     </div>
 
-    <div class="row d-none" id="content-detail">
-        <div class="col-md-5 mb-4">
-            <img src="{{ asset('images/foto_kambing.jpg') }}" class="img-fluid rounded-4 shadow-sm border w-100" alt="Kambing" style="border-color: var(--border-color) !important;">
-        </div>
+    <div class="d-none" id="content-detail">
 
-        <div class="col-md-7">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h1 id="kambing-nama" class="display-5 fw-bold mb-1"></h1>
-                    <span id="kambing-status" class="badge p-2 shadow-sm"></span>
-                </div>
-                <div class="d-flex gap-2">
-                    <button id="btn-edit" class="btn btn-green btn-sm fw-bold px-3 shadow-sm d-none"
-                            onclick="window.location.href='/katalog/edit/' + currentId">
-                        <i class="bi bi-pencil-square"></i> EDIT
-                    </button>
-                    <button id="btn-hapus" class="btn btn-outline-danger-custom btn-sm fw-bold px-3 shadow-sm d-none"
-                            onclick="bukaModal()">
-                        <i class="bi bi-trash"></i> HAPUS
-                    </button>
-                </div>
-            </div>
-            <hr style="border-color: var(--border-color); opacity: 1;">
-
-            <div class="row mb-4">
-                <div class="col-6">
-                    <p class="mb-0 small fw-bold" style="color: var(--text-sub);">JENIS/RAS</p>
-                    <h5 id="kambing-jenis" class="fw-bold">-</h5>
-                </div>
-                <div class="col-6">
-                    <p class="mb-0 small fw-bold" style="color: var(--text-sub);">BERAT AWAL</p>
-                    <h5 id="kambing-berat" class="fw-bold">-</h5>
-                </div>
+        <!-- Baris atas: Foto + Info -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-5">
+                <img id="foto-kambing"
+                     src="{{ asset('images/foto_kambing.jpg') }}"
+                     class="foto-kambing shadow-sm"
+                     alt="Kambing">
             </div>
 
-            <div class="table-responsive card-custom">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr><th>Parameter</th><th>Keterangan</th></tr>
-                    </thead>
-                    <tbody id="kambing-info-tabel"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-5">
-        <div class="col-md-7 mb-4">
-            <div class="card card-custom h-100 border-0">
-                <div class="card-header border-0">Grafik Pertumbuhan</div>
-                <div class="card-body"><canvas id="grafikBerat" style="max-height: 250px;"></canvas></div>
-            </div>
-        </div>
-        <div class="col-md-5 mb-4">
-            <div class="card card-custom h-100 border-0">
-                <div class="card-header border-0 d-flex justify-content-between align-items-center">
-                    <span>Riwayat Timbangan</span>
-                    <button class="btn btn-green btn-sm fw-bold shadow-sm" onclick="bukaModalBerat()">
-                        <i class="bi bi-plus-lg"></i> Input Berat
-                    </button>
+            <div class="col-12 col-md-7">
+                <!-- Nama + Tombol -->
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                    <div>
+                        <h1 id="kambing-nama" class="fw-bold mb-1"></h1>
+                        <span id="kambing-status" class="badge p-2 shadow-sm"></span>
+                    </div>
+                    <div class="aksi-buttons">
+                        <button id="btn-edit" class="btn btn-green btn-sm fw-bold px-3 shadow-sm d-none"
+                                onclick="window.location.href='/katalog/edit/' + currentId">
+                            <i class="bi bi-pencil-square"></i> EDIT
+                        </button>
+                        <button id="btn-hapus" class="btn btn-outline-danger-custom btn-sm fw-bold px-3 shadow-sm d-none"
+                                onclick="bukaModal()">
+                            <i class="bi bi-trash"></i> HAPUS
+                        </button>
+                    </div>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light"><tr><th>Tanggal</th><th>Berat</th></tr></thead>
-                        <tbody id="tabel-riwayat-berat"></tbody>
-                    </table>
+
+                <hr style="border-color: var(--border-color); opacity: 1;">
+
+                <div class="row mb-4">
+                    <div class="col-6">
+                        <p class="mb-0 small fw-bold" style="color: var(--text-sub);">JENIS/RAS</p>
+                        <h5 id="kambing-jenis" class="fw-bold">-</h5>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-0 small fw-bold" style="color: var(--text-sub);">BERAT AWAL</p>
+                        <h5 id="kambing-berat" class="fw-bold">-</h5>
+                    </div>
+                </div>
+
+                <div class="card-custom overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr><th>Parameter</th><th>Keterangan</th></tr>
+                            </thead>
+                            <tbody id="kambing-info-tabel"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Baris bawah: Grafik + Riwayat -->
+        <div class="row g-4">
+            <div class="col-12 col-md-7">
+                <div class="card card-custom h-100 border-0">
+                    <div class="card-header border-0">Grafik Pertumbuhan</div>
+                    <div class="card-body">
+                        <canvas id="grafikBerat" style="max-height: 250px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5">
+                <div class="card card-custom h-100 border-0">
+                    <div class="card-header border-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <span>Riwayat Timbangan</span>
+                        <button class="btn btn-green btn-sm fw-bold shadow-sm" onclick="bukaModalBerat()">
+                            <i class="bi bi-plus-lg"></i> Input Berat
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr><th>Tanggal</th><th>Berat</th></tr>
+                                </thead>
+                                <tbody id="tabel-riwayat-berat"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -422,9 +477,6 @@
     const userRole   = userData?.role || '';
     const apiHeaders = { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' };
 
-    // =====================
-    // ROLE-BASED BUTTONS
-    // =====================
     function renderActionButtons() {
         const btnEdit  = document.getElementById('btn-edit');
         const btnHapus = document.getElementById('btn-hapus');
@@ -436,9 +488,6 @@
         }
     }
 
-    // =====================
-    // MODAL HAPUS
-    // =====================
     function bukaModal() {
         document.getElementById('modal-hapus').classList.add('show');
     }
@@ -464,9 +513,7 @@
             if (res.ok) {
                 window.location.href = '/katalog';
             } else {
-                return res.json().then(data => {
-                    throw new Error(data.message || 'Gagal menghapus data.');
-                });
+                return res.json().then(data => { throw new Error(data.message || 'Gagal menghapus data.'); });
             }
         })
         .catch(err => {
@@ -477,9 +524,6 @@
         });
     }
 
-    // =====================
-    // MODAL INPUT BERAT
-    // =====================
     function bukaModalBerat() {
         document.getElementById('alert-berat').innerHTML = '';
         document.getElementById('input-berat-val').value = '';
@@ -514,10 +558,7 @@
         fetch(`/api/kambing/${currentId}/timbang`, {
             method: 'POST',
             headers: { ...apiHeaders, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                tanggal: tanggal,
-                berat: parseFloat(berat)
-            })
+            body: JSON.stringify({ tanggal: tanggal, berat: parseFloat(berat) })
         })
         .then(res => res.json().then(data => ({ ok: res.ok, data })))
         .then(({ ok, data }) => {
@@ -525,10 +566,7 @@
                 alertEl.innerHTML = `<div class="alert-modal-success"><i class="bi bi-check-circle me-1"></i>${data.message || 'Berat berhasil disimpan!'}</div>`;
                 btn.disabled = false;
                 btn.innerHTML = '<i class="bi bi-save"></i> Simpan';
-                setTimeout(() => {
-                    tutupModalBerat();
-                    location.reload();
-                }, 1200);
+                setTimeout(() => { tutupModalBerat(); location.reload(); }, 1200);
             } else {
                 throw new Error(data.message || 'Gagal menyimpan data.');
             }
@@ -540,7 +578,6 @@
         });
     }
 
-    // Tutup modal kalau klik di luar box
     document.getElementById('modal-input-berat').addEventListener('click', function(e) {
         if (e.target === this) tutupModalBerat();
     });
@@ -548,20 +585,23 @@
         if (e.target === this) tutupModal();
     });
 
-    // =====================
-    // LOAD DATA KAMBING
-    // =====================
     document.addEventListener("DOMContentLoaded", function() {
         renderActionButtons();
 
         fetch(`/api/kambing/${currentId}`, { headers: apiHeaders })
             .then(res => res.json())
             .then(result => {
-                if(result.status === 'success' && result.data) {
+                if (result.status === 'success' && result.data) {
                     const k = result.data;
                     document.getElementById('kambing-nama').innerText = k.nama || 'Kambing #';
                     document.getElementById('kambing-jenis').innerText = k.jenis || '-';
                     document.getElementById('kambing-berat').innerText = (k.berat_awal || 0) + ' kg';
+
+                    if (k.gambar) {
+                        const fotoEl = document.getElementById('foto-kambing');
+                        fotoEl.src = k.gambar.startsWith('http') ? k.gambar : `/images/kambing/${k.gambar}`;
+                        fotoEl.onerror = function() { this.src = '/images/foto_kambing.jpg'; };
+                    }
 
                     const sb = document.getElementById('kambing-status');
                     const kondisi = (k.status_kondisi || 'Sehat').toUpperCase();

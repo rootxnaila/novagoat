@@ -3,7 +3,6 @@
 @section('content')
 
 <style>
-    /* palette novagoat */
     :root {
         --dark-green: #1B4D1E;
         --medium-green: #2E7D32;
@@ -20,7 +19,6 @@
     }
 
     body { background-color: var(--page-bg) !important; }
-
     .text-heading { color: var(--heading-text) !important; }
     .text-sub { color: var(--sub-text) !important; }
 
@@ -75,7 +73,7 @@
         box-shadow: 0 2px 4px var(--shadow-muted);
     }
 
-    /* ===== RESPONSIVE: Card mode di HP ===== */
+    /* ===== HP: Card mode ===== */
     @media (max-width: 768px) {
         .table-nova thead {
             display: none;
@@ -129,7 +127,9 @@
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="fw-bold text-heading mb-0"><i class="bi bi-book-half" style="color: var(--medium-green);"></i> Katalog Ensiklopedia</h3>
+            <h3 class="fw-bold text-heading mb-0">
+                <i class="bi bi-book-half" style="color: var(--medium-green);"></i> Katalog Ensiklopedia
+            </h3>
             <small class="text-sub">Manajemen Data Seluruh Kambing di Peternakan</small>
         </div>
 
@@ -155,7 +155,10 @@
                 </thead>
                 <tbody id="katalog-container">
                     <tr>
-                        <td colspan="8" class="py-5 text-center text-sub">Memuat data dari server... <br> <small>Pastikan API Sanctum menyala</small></td>
+                        <td colspan="8" class="py-5 text-center text-sub">
+                            Memuat data dari server... <br>
+                            <small>Pastikan API Sanctum menyala</small>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -163,6 +166,7 @@
     </div>
 </div>
 
+<!-- Modal Tambah Kambing -->
 <div class="modal fade" id="modalTambahKambing" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
@@ -206,9 +210,9 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-sub">URL GAMBAR (Opsional)</label>
+                        <label class="form-label small fw-bold text-sub">FOTO KAMBING (Opsional)</label>
                         <input type="file" name="gambar" class="form-control" accept="image/*" capture="environment">
-                        <small class="text-muted" style="font-size: 11px;">Bisa pilih dari galeri atau langsung foto dari kamera HP.</small>
+                        <small class="text-muted" style="font-size: 11px;">Bisa pilih dari galeri atau langsung foto dari kamera HP.</small><br>
                         <small class="text-muted" style="font-size: 11px;">Kosongkan jika ingin pakai gambar default.</small>
                     </div>
                 </div>
@@ -246,7 +250,7 @@
         })
         .then(response => response.json())
         .then(result => {
-            if(result.status === 'success') {
+            if (result.status === 'success') {
                 container.innerHTML = '';
 
                 if (result.data.length === 0) {
@@ -264,7 +268,7 @@
 
                     let actionButtons = `<a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-sm btn-nova-outline fw-bold mx-1"><i class="bi bi-eye"></i> Detail</a>`;
 
-                    if(userRole === 'admin') {
+                    if (userRole === 'admin') {
                         actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button>`;
                     }
 
@@ -309,7 +313,7 @@
             })
             .then(response => response.json())
             .then(result => {
-                if(result.status === 'success') {
+                if (result.status === 'success') {
                     alert('Kambing & Foto berhasil ditambahkan!');
                     location.reload();
                 } else {
@@ -328,7 +332,7 @@
     });
 
     window.deleteKambing = function(id) {
-        if(!confirm('Yakin mau hapus kambing ini?')) return;
+        if (!confirm('Yakin mau hapus kambing ini?')) return;
         const token = localStorage.getItem('token');
         fetch(`/api/kambing/${id}`, {
             method: 'DELETE',

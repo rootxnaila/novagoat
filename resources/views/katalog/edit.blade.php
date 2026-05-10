@@ -24,27 +24,44 @@
         min-height: 100vh;
     }
 
-    .card {
-        background-color: var(--bg-card);
-        border: 1px solid var(--border-color) !important;
-        border-radius: 16px !important;
+    .page-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 100px 16px 60px;
     }
 
-    .card-header {
-        background-color: var(--green-button) !important;
-        color: var(--green-pale) !important;
-        border-bottom: 1px solid var(--border-color) !important;
-        border-radius: 16px 16px 0 0 !important;
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(176,190,177,0.25);
+        width: 100%;
+        max-width: 520px;
+        overflow: hidden;
+    }
+
+    .form-card-header {
+        background-color: var(--green-button);
+        color: var(--green-pale);
+        padding: 14px 20px;
         font-size: 14px;
         font-weight: 500;
+    }
+
+    .form-card-body {
+        padding: 24px 20px;
     }
 
     .form-label {
         color: var(--text-sub);
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.4px;
+        margin-bottom: 6px;
+        display: block;
     }
 
     .form-control, .form-select {
@@ -52,11 +69,18 @@
         border: 1px solid var(--border-color) !important;
         color: var(--text-heading) !important;
         border-radius: 8px !important;
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        box-sizing: border-box;
     }
 
     .form-control:focus, .form-select:focus {
         border-color: var(--green-button) !important;
         box-shadow: 0 0 0 3px rgba(61, 122, 64, 0.15) !important;
+        background-color: #fff !important;
     }
 
     .form-control::placeholder {
@@ -66,6 +90,15 @@
     hr {
         border-color: var(--border-color);
         opacity: 1;
+        margin: 20px 0;
+    }
+
+    .footer-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .btn-batal {
@@ -75,8 +108,10 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 500;
-        padding: 6px 16px;
+        padding: 8px 18px;
         text-decoration: none;
+        display: inline-block;
+        transition: background 0.18s;
     }
 
     .btn-batal:hover {
@@ -91,12 +126,19 @@
         border-radius: 8px;
         font-size: 13px;
         font-weight: 500;
-        padding: 6px 16px;
+        padding: 8px 18px;
+        cursor: pointer;
+        transition: background 0.18s;
     }
 
     .btn-simpan:hover {
         background-color: var(--green-medium);
         color: var(--green-pale);
+    }
+
+    .btn-simpan:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     .spinner-border {
@@ -110,58 +152,72 @@
         border-radius: 8px;
         padding: 10px 14px;
         font-size: 13px;
+        margin-bottom: 16px;
     }
 
-    p.loading-text {
+    .loading-text {
         color: var(--text-sub);
         font-size: 13px;
         margin-top: 8px;
     }
+
+    /* HP: padding lebih kecil */
+    @media (max-width: 480px) {
+        .form-card-body {
+            padding: 18px 14px;
+        }
+        .footer-actions {
+            flex-direction: column-reverse;
+        }
+        .btn-batal, .btn-simpan {
+            width: 100%;
+            text-align: center;
+        }
+    }
 </style>
 
-<div class="container" style="margin-top: 100px;">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <i class="bi bi-pencil-square"></i> Edit Data Kambing
-                </div>
-                <div class="card-body">
+<div class="page-wrapper">
+    <div class="form-card">
+        <div class="form-card-header">
+            <i class="bi bi-pencil-square me-1"></i> Edit Data Kambing
+        </div>
+        <div class="form-card-body">
 
-                    <div id="loading-edit" class="text-center py-4">
-                        <div class="spinner-border" role="status"></div>
-                        <p class="loading-text">Mengambil data lama...</p>
-                    </div>
-
-                    <div id="error-edit" class="d-none alert-error mb-3">
-                        Gagal mengambil data. Pastikan kamu sudah login.
-                    </div>
-
-                    <form id="form-edit-kambing" class="d-none">
-                        <div class="mb-3">
-                            <label class="form-label">Nama Kambing</label>
-                            <input type="text" id="edit-nama" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Jenis/Ras</label>
-                            <input type="text" id="edit-jenis" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Status Kondisi</label>
-                            <select id="edit-status" class="form-select">
-                                <option value="Sehat">Sehat</option>
-                                <option value="Sakit">Sakit</option>
-                            </select>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between">
-                            <a href="/katalog/detail/{{ $id }}" class="btn-batal">Batal</a>
-                            <button type="submit" class="btn-simpan">Simpan Perubahan</button>
-                        </div>
-                    </form>
-
-                </div>
+            <div id="loading-edit" class="text-center py-4">
+                <div class="spinner-border" role="status"></div>
+                <p class="loading-text">Mengambil data lama...</p>
             </div>
+
+            <div id="error-edit" class="d-none alert-error">
+                Gagal mengambil data. Pastikan kamu sudah login.
+            </div>
+
+            <form id="form-edit-kambing" class="d-none">
+                <div class="mb-3">
+                    <label class="form-label">Nama Kambing</label>
+                    <input type="text" id="edit-nama" class="form-control" placeholder="Nama kambing" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Jenis/Ras</label>
+                    <input type="text" id="edit-jenis" class="form-control" placeholder="Contoh: Etawa" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status Kondisi</label>
+                    <select id="edit-status" class="form-select">
+                        <option value="Sehat">Sehat</option>
+                        <option value="Sakit">Sakit</option>
+                        <option value="Karantina">Karantina</option>
+                    </select>
+                </div>
+                <hr>
+                <div class="footer-actions">
+                    <a href="/katalog/detail/{{ $id }}" class="btn-batal">Batal</a>
+                    <button type="submit" class="btn-simpan" id="btn-submit">
+                        <i class="bi bi-save me-1"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
@@ -198,9 +254,12 @@
                 console.error("Error ambil data:", err);
             });
 
-        const form = document.getElementById('form-edit-kambing');
-        form.addEventListener('submit', function(e) {
+        document.getElementById('form-edit-kambing').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
 
             const updatedData = {
                 nama:           document.getElementById('edit-nama').value,
@@ -224,7 +283,11 @@
                 alert('Data berhasil diperbarui!');
                 window.location.href = `/katalog/detail/${currentId}`;
             })
-            .catch(() => alert('Gagal update data! Cek koneksi atau login ulang.'));
+            .catch(() => {
+                alert('Gagal update data! Cek koneksi atau login ulang.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-save me-1"></i> Simpan Perubahan';
+            });
         });
     });
 </script>

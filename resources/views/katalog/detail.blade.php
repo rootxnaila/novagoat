@@ -28,10 +28,8 @@
     }
 
     .dashboard-container {
-        margin-top: 100px;
+        margin-top: 30px;
         padding-bottom: 60px;
-        padding-left: 16px;
-        padding-right: 16px;
     }
 
     .card-custom {
@@ -102,6 +100,7 @@
         width: 100%;
         max-height: 320px;
         object-fit: cover;
+        object-position: center top;
         border-radius: 16px;
         border: 1px solid var(--border-color);
     }
@@ -292,7 +291,7 @@
     /* ===== Grafik & Riwayat stack di HP ===== */
     @media (max-width: 768px) {
         .dashboard-container {
-            margin-top: 80px;
+            margin-top: 20px;
         }
 
         .section-top {
@@ -371,7 +370,7 @@
     </div>
 </div>
 
-<div class="container-fluid dashboard-container">
+<div class="container dashboard-container">
 
     <div id="loading-detail" class="text-center">
         <div class="spinner-border" role="status" style="color: var(--green-button);"></div>

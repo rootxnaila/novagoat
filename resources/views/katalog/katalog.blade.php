@@ -73,77 +73,6 @@
         box-shadow: 0 2px 4px var(--shadow-muted);
     }
 
-    /* ===== Modal Hapus ===== */
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.35);
-        z-index: 9999;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-    }
-    .modal-overlay.show { display: flex; }
-
-    .modal-box {
-        background: var(--card-white);
-        border-radius: 16px;
-        border: 1px solid var(--border-divider);
-        padding: 28px 24px;
-        max-width: 380px;
-        width: 100%;
-        box-shadow: 0 8px 32px rgba(27, 77, 30, 0.13);
-        animation: slideUp 0.22s ease;
-    }
-
-    @keyframes slideUp {
-        from { transform: translateY(24px); opacity: 0; }
-        to   { transform: translateY(0);    opacity: 1; }
-    }
-
-    .modal-box h5 {
-        color: var(--heading-text);
-        font-weight: 600;
-        margin-bottom: 8px;
-        font-size: 16px;
-    }
-    .modal-box p {
-        color: var(--sub-text);
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-    .modal-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .btn-cancel-modal {
-        background: #F2F5F2;
-        color: var(--sub-text);
-        border: 1px solid var(--border-divider);
-        border-radius: 8px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    .btn-cancel-modal:hover { background: var(--border-divider); }
-
-    .btn-confirm-delete {
-        background: #E24B4A;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 7px 18px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-    .btn-confirm-delete:hover { background: #A32D2D; }
-    .btn-confirm-delete:disabled { opacity: 0.6; cursor: not-allowed; }
-
     /* ===== HP: Card mode ===== */
     @media (max-width: 768px) {
         .table-nova thead {
@@ -194,23 +123,6 @@
         }
     }
 </style>
-
-<!-- Modal Konfirmasi Hapus -->
-<div class="modal-overlay" id="modal-hapus-katalog">
-    <div class="modal-box">
-        <h5>
-            <i class="bi bi-exclamation-triangle-fill" style="color:#E24B4A; margin-right:6px;"></i>
-            Hapus Data Kambing?
-        </h5>
-        <p>Data yang dihapus tidak dapat dikembalikan. Yakin ingin menghapus kambing ini?</p>
-        <div class="modal-actions">
-            <button class="btn-cancel-modal" onclick="tutupModalHapusKatalog()">Batal</button>
-            <button class="btn-confirm-delete" id="btn-confirm-hapus-katalog" onclick="konfirmasiHapusKatalog()">
-                <i class="bi bi-trash"></i> Ya, Hapus
-            </button>
-        </div>
-    </div>
-</div>
 
 <div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -317,30 +229,13 @@
     const userDataStore = JSON.parse(localStorage.getItem('user') || '{}');
     const userRole = userDataStore.role ? userDataStore.role.toLowerCase() : 'guest';
 
-    // ===== Modal Hapus Katalog =====
-    let hapusTargetId = null;
-
-    window.deleteKambing = function(id) {
-        hapusTargetId = id;
-        const btn = document.getElementById('btn-confirm-hapus-katalog');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-trash"></i> Ya, Hapus';
-        document.getElementById('modal-hapus-katalog').classList.add('show');
-    }
-
-    function tutupModalHapusKatalog() {
-        document.getElementById('modal-hapus-katalog').classList.remove('show');
-        hapusTargetId = null;
-    }
-
-    function konfirmasiHapusKatalog() {
-        if (!hapusTargetId) return;
-        const btn = document.getElementById('btn-confirm-hapus-katalog');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghapus...';
+    // ===== Hapus Kambing =====
+    window.deleteKambing = function(id, nama) {
+        const yakin = confirm('Yakin ingin menghapus kambing "' + nama + '"?');
+        if (!yakin) return;
 
         const token = localStorage.getItem('token');
-        fetch(`/api/kambing/${hapusTargetId}`, {
+        fetch(`/api/kambing/${id}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': 'Bearer ' + token,
@@ -350,23 +245,16 @@
         })
         .then(res => {
             if (res.ok) {
+                alert('Data kambing berhasil dihapus!');
                 location.reload();
             } else {
                 return res.json().then(data => { throw new Error(data.message || 'Gagal menghapus data.'); });
             }
         })
         .catch(err => {
-            tutupModalHapusKatalog();
             alert('Gagal menghapus: ' + err.message);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-trash"></i> Ya, Hapus';
         });
     }
-
-    // Klik luar modal = tutup
-    document.getElementById('modal-hapus-katalog').addEventListener('click', function(e) {
-        if (e.target === this) tutupModalHapusKatalog();
-    });
 
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('katalog-container');
@@ -408,7 +296,7 @@
                     let actionButtons = `<a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-sm btn-nova-outline fw-bold mx-1"><i class="bi bi-eye"></i> Detail</a>`;
 
                     if (userRole === 'admin') {
-                        actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button>`;
+                        actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing}, '${kambing.nama.replace(/'/g, "\\'")}')"><i class="bi bi-trash"></i> Hapus</button>`;
                     }
 
                     let rowHTML = `
@@ -453,10 +341,10 @@
             .then(response => response.json())
             .then(result => {
                 if (result.status === 'success') {
-                    alert('Kambing & Foto berhasil ditambahkan!');
+                    alert('Kambing berhasil ditambahkan!');
                     location.reload();
                 } else {
-                    alert(result.message || 'Cek kembali data form');
+                    alert(result.message || 'Cek kembali data form.');
                     btnSubmit.innerHTML = originalText;
                     btnSubmit.disabled = false;
                 }

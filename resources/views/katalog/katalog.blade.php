@@ -67,46 +67,95 @@
     }
 
     .img-kambing {
-        width: 60px; 
-        height: 60px; 
-        object-fit: cover; 
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
         border-radius: 12px;
         border: 2px solid var(--icon-circle);
         box-shadow: 0 2px 4px var(--shadow-muted);
     }
+
+    /* ===== RESPONSIVE: Card mode di HP ===== */
+    @media (max-width: 768px) {
+        .table-nova thead {
+            display: none;
+        }
+        .table-nova tbody tr {
+            display: block;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-divider);
+            box-shadow: 0 2px 8px rgba(176,190,177,0.3);
+            background: var(--card-white);
+            padding: 10px;
+        }
+        .table-nova tbody td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-divider);
+            padding: 8px 10px;
+            text-align: right;
+        }
+        .table-nova tbody td:last-child {
+            border-bottom: none;
+        }
+        .table-nova tbody td::before {
+            content: attr(data-label);
+            font-weight: 700;
+            color: var(--dark-green);
+            text-align: left;
+            flex-shrink: 0;
+            margin-right: 10px;
+            font-size: 13px;
+        }
+        .table-nova tbody td.td-foto {
+            justify-content: center;
+        }
+        .table-nova tbody td.td-foto::before {
+            display: none;
+        }
+        .table-nova tbody td.td-aksi {
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .table-nova tbody td.td-aksi::before {
+            display: none;
+        }
+    }
 </style>
 
-<div class="container mt-5 mb-5"> 
+<div class="container mt-5 mb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h3 class="fw-bold text-heading mb-0"><i class="bi bi-book-half" style="color: var(--medium-green);"></i> Katalog Ensiklopedia</h3>
             <small class="text-sub">Manajemen Data Seluruh Kambing di Peternakan</small>
         </div>
-        
+
         <button id="btn-tambah" class="btn btn-nova-primary px-4 py-2 d-none" data-bs-toggle="modal" data-bs-target="#modalTambahKambing">
-        <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
-       </button>
-        
+            <i class="bi bi-plus-circle me-1"></i> Tambah Kambing
+        </button>
     </div>
-    
+
     <div class="card card-katalog p-0">
         <div class="table-responsive">
-            <table class="table table-nova table-hover text-center align-middle mb-0"> 
-                <thead> 
+            <table class="table table-nova table-hover text-center align-middle mb-0">
+                <thead>
                     <tr>
-                        <th>No</th> 
-                        <th>Foto</th> 
-                        <th class="text-start">Nama Kambing</th> 
-                        <th>Ras/Jenis</th> 
-                        <th>Berat Awal</th> 
-                        <th>Berat Sekarang</th> 
-                        <th>Status</th> 
-                        <th>Aksi</th> 
+                        <th>No</th>
+                        <th>Foto</th>
+                        <th class="text-start">Nama Kambing</th>
+                        <th>Ras/Jenis</th>
+                        <th>Berat Awal</th>
+                        <th>Berat Sekarang</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="katalog-container"> 
+                <tbody id="katalog-container">
                     <tr>
-                        <td colspan="8" class="py-5 text-center text-sub">Memuat data dari server... <br> <small>Pastikan API Sanctum menyala</small></td> 
+                        <td colspan="8" class="py-5 text-center text-sub">Memuat data dari server... <br> <small>Pastikan API Sanctum menyala</small></td>
                     </tr>
                 </tbody>
             </table>
@@ -173,12 +222,11 @@
 </div>
 
 <script>
-    //ambil role dr localstorage
     const userDataStore = JSON.parse(localStorage.getItem('user') || '{}');
-    const userRole = userDataStore.role ? userDataStore.role.toLowerCase() : 'guest'; 
+    const userRole = userDataStore.role ? userDataStore.role.toLowerCase() : 'guest';
 
     document.addEventListener("DOMContentLoaded", function() {
-        const container = document.getElementById('katalog-container'); 
+        const container = document.getElementById('katalog-container');
         const token = localStorage.getItem('token');
 
         if (!token) {
@@ -186,60 +234,60 @@
             return;
         }
 
-        //munculin button tambah kambing
         if (userRole === 'admin' || userRole === 'anak_kandang') {
             document.getElementById('btn-tambah')?.classList.remove('d-none');
         }
 
         fetch('/api/kambing', {
-            headers: { 
+            headers: {
                 'Authorization': 'Bearer ' + token,
-                'Accept': 'application/json' 
+                'Accept': 'application/json'
             }
         })
-        .then(response => response.json()) 
-        .then(result => { 
-            if(result.status === 'success') { 
-                container.innerHTML = ''; 
+        .then(response => response.json())
+        .then(result => {
+            if(result.status === 'success') {
+                container.innerHTML = '';
 
-                if (result.data.length === 0) { 
-                    container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-sub"><i class="bi bi-inbox fs-1"></i><br>Kandang masih kosong.</td></tr>'; 
-                    return; 
+                if (result.data.length === 0) {
+                    container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-sub"><i class="bi bi-inbox fs-1"></i><br>Kandang masih kosong.</td></tr>';
+                    return;
                 }
 
-                result.data.forEach((kambing, index) => { 
-                    let gambarUrl = '/images/default_kambing.jpg'; 
+                result.data.forEach((kambing, index) => {
+                    let gambarUrl = '/images/default_kambing.jpg';
                     if (kambing.gambar) {
-                        gambarUrl = kambing.gambar.startsWith('http') ? kambing.gambar : `/images/kambing/${kambing.gambar}`; 
+                        gambarUrl = kambing.gambar.startsWith('http') ? kambing.gambar : `/images/kambing/${kambing.gambar}`;
                     }
 
-                    let statusClass = kambing.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-warning text-dark'; 
-                    let actionButtons = `<a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-sm btn-nova-outline fw-bold mx-1"><i class="bi bi-eye"></i> Detail</a>`; 
+                    let statusClass = kambing.status_kondisi === 'Sehat' ? 'bg-success' : 'bg-danger';
 
-                    if(userRole === 'admin') { 
-                        actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button>`; 
+                    let actionButtons = `<a href="/katalog/detail/${kambing.id_kambing}" class="btn btn-sm btn-nova-outline fw-bold mx-1"><i class="bi bi-eye"></i> Detail</a>`;
+
+                    if(userRole === 'admin') {
+                        actionButtons += `<button class="btn btn-sm btn-danger fw-bold mx-1" onclick="deleteKambing(${kambing.id_kambing})"><i class="bi bi-trash"></i> Hapus</button>`;
                     }
 
                     let rowHTML = `
                         <tr>
-                            <td class="fw-bold">${index + 1}</td> 
-                            <td><img src="${gambarUrl}" class="img-kambing" alt="Foto" onerror="this.onerror=null; this.src='/images/default_kambing.jpg';"></td> 
-                            <td class="text-start fw-bold text-heading fs-6">${kambing.nama}</td>
-                            <td><span class="badge" style="background-color: var(--icon-circle); color: var(--dark-green); border: 1px solid var(--border-divider);">${kambing.jenis}</span></td> 
-                            <td class="fw-bold">${kambing.berat_awal} <small class="text-sub">kg</small></td> 
-                            <td class="fw-bold text-success">${kambing.berat_sekarang ? kambing.berat_sekarang + ' <small class="text-sub">kg</small>' : '-'}</td> 
-                            <td><span class="badge ${statusClass} px-3 py-2 rounded-pill">${kambing.status_kondisi}</span></td> 
-                            <td>${actionButtons}</td> 
-                        </tr>`; 
-                    container.innerHTML += rowHTML; 
+                            <td class="fw-bold" data-label="No">${index + 1}</td>
+                            <td class="td-foto"><img src="${gambarUrl}" class="img-kambing" alt="Foto" onerror="this.onerror=null; this.src='/images/default_kambing.jpg';"></td>
+                            <td class="text-start fw-bold text-heading fs-6" data-label="Nama">${kambing.nama}</td>
+                            <td data-label="Ras/Jenis"><span class="badge" style="background-color: var(--icon-circle); color: var(--dark-green); border: 1px solid var(--border-divider);">${kambing.jenis}</span></td>
+                            <td class="fw-bold" data-label="Berat Awal">${kambing.berat_awal} <small class="text-sub">kg</small></td>
+                            <td class="fw-bold text-success" data-label="Berat Skrg">${kambing.berat_sekarang ? kambing.berat_sekarang + ' <small class="text-sub">kg</small>' : '-'}</td>
+                            <td data-label="Status"><span class="badge ${statusClass} px-3 py-2 rounded-pill">${kambing.status_kondisi}</span></td>
+                            <td class="td-aksi">${actionButtons}</td>
+                        </tr>`;
+                    container.innerHTML += rowHTML;
                 });
             } else {
-                container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal mengambil data.</td></tr>'; 
+                container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal mengambil data.</td></tr>';
             }
         })
-        .catch(error => { 
-            console.error('API Error:', error); 
-            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal memuat data API.</td></tr>'; 
+        .catch(error => {
+            console.error('API Error:', error);
+            container.innerHTML = '<tr><td colspan="8" class="py-5 text-center text-danger">Gagal memuat data API.</td></tr>';
         });
 
         document.getElementById('formTambahKambing')?.addEventListener('submit', function(e) {
@@ -247,7 +295,7 @@
             const formData = new FormData(this);
             const btnSubmit = this.querySelector('button[type="submit"]');
             const originalText = btnSubmit.innerHTML;
-            
+
             btnSubmit.innerHTML = 'Mengupload...';
             btnSubmit.disabled = true;
 
@@ -257,13 +305,13 @@
                     'Accept': 'application/json',
                     'Authorization': 'Bearer ' + token
                 },
-                body: formData 
+                body: formData
             })
             .then(response => response.json())
             .then(result => {
                 if(result.status === 'success') {
                     alert('Kambing & Foto berhasil ditambahkan!');
-                    location.reload(); 
+                    location.reload();
                 } else {
                     alert(result.message || 'Cek kembali data form');
                     btnSubmit.innerHTML = originalText;
@@ -277,7 +325,7 @@
                 btnSubmit.disabled = false;
             });
         });
-    }); 
+    });
 
     window.deleteKambing = function(id) {
         if(!confirm('Yakin mau hapus kambing ini?')) return;

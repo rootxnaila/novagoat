@@ -21,7 +21,8 @@
     body { background-color: var(--page-bg) !important; }
 
     .dashboard-wrapper {
-        padding: 80px 16px 60px;
+        padding-top: 80px;
+        padding-bottom: 60px;
     }
 
     /* ===== Metric Cards ===== */
@@ -97,32 +98,13 @@
 
     /* ===== Responsive ===== */
     @media (max-width: 768px) {
-        .dashboard-wrapper {
-            padding: 80px 12px 60px;
-        }
-
-        /* 2 kolom di HP untuk metric cards */
         .metric-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-
-        /* Chart full width di HP */
-        .chart-col {
-            width: 100% !important;
-            max-width: 100% !important;
-            flex: 0 0 100% !important;
-        }
-
-        /* Chart height lebih kecil di HP */
         .chart-inner {
             height: 200px !important;
-        }
-
-        /* Legend chart di bawah di HP */
-        .chart-legend-bottom canvas {
-            max-height: 180px;
         }
     }
 
@@ -136,7 +118,7 @@
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="dashboard-wrapper">
+<div class="container dashboard-wrapper">
 
     <!-- Header Greeting -->
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -196,7 +178,7 @@
 
     <!-- Chart Row -->
     <div class="row g-3">
-        <div class="col-12 col-md-6 chart-col">
+        <div class="col-12 col-md-6">
             <div class="chart-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="chart-title">
@@ -210,7 +192,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-6 chart-col">
+        <div class="col-12 col-md-6">
             <div class="chart-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="chart-title">
@@ -246,7 +228,6 @@
         const namaBosEl = document.getElementById('namaBos');
         if (namaBosEl) namaBosEl.innerText = user.username;
 
-        // Fetch Anak Kandang
         fetch('/api/karyawan/kinerja', {
             headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
         })
@@ -258,7 +239,6 @@
         })
         .catch(err => console.error('Error Kinerja:', err));
 
-        // Fetch Dashboard Stats
         fetch('/api/dashboard/stats', {
             headers: { 'Authorization': 'Bearer ' + token, 'Accept': 'application/json' }
         })

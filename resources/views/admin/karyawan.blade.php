@@ -99,14 +99,16 @@
 </style>
 
 <div class="container mt-5 mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
         <div>
             <h3 class="fw-bold text-heading mb-0"><i class="bi bi-people-fill" style="color: var(--medium-green);"></i> Kinerja Karyawan</h3>
             <small class="text-sub">Monitoring aktivitas operasional Anak Kandang</small>
         </div>
-        <button class="btn btn-nova px-4 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan">
-            <i class="bi bi-person-plus-fill me-2"></i>Tambah Karyawan
-        </button>
+        <div class="w-100 d-md-flex justify-content-md-end" style="max-width: 300px;">
+            <button class="btn btn-nova w-100 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#modalTambahKaryawan">
+                <i class="bi bi-person-plus-fill me-2"></i>Tambah Karyawan
+            </button>
+        </div>
     </div>
 
 <div class="card card-nova overflow-hidden">

@@ -78,6 +78,51 @@
     .delay-2 { animation-delay: 0.2s; }
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
+
+    /* ==========================================================================
+       FIX BENTROK REVISI TOTAL: ANTI TEXT NUMPUK & OVERLAP DI BOOTSTRAP 5
+       ========================================================================== */
+    
+    .ts-wrapper.ts-select-custom .ts-control {
+        background-color: var(--card-white) !important;
+        color: var(--heading-text) !important;
+        border-radius: 10px !important;
+        border: 1px solid transparent !important;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        height: 38px !important;
+        padding: 0.375rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+    }
+
+    .modal .ts-wrapper.ts-select-custom .ts-control {
+        background-color: var(--input-bg) !important;
+        border: 1px solid var(--border-divider) !important;
+        box-shadow: none !important;
+        border-radius: 8px !important;
+    }
+
+    .ts-wrapper.ts-select-custom .ts-dropdown {
+        border-radius: 10px !important;
+        border: 1px solid var(--border-divider) !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+        z-index: 2000 !important;
+    }
+
+    /* KUNCI UTAMA: Ketika dropdown diklik/fokus untuk search, SEMBUNYIKAN teks pilihan lama */
+    .ts-wrapper.ts-select-custom.focus .ts-control .item {
+        display: none !important;
+    }
+
+    /* Paksa kolom input pencarian melebar penuh ke kiri, biar ngetiknya gak kelempar ke kanan */
+    .ts-wrapper.ts-select-custom .ts-control > input {
+        display: inline-block !important;
+        width: 100% !important;
+        opacity: 1 !important;
+        position: relative !important;
+    }
 </style>
 
 <div class="container" style="padding-top: 40px; padding-bottom: 100px; min-height: 100vh;">
@@ -88,7 +133,7 @@
             <p class="mb-0 font-monospace" style="font-size: 0.85rem; color: var(--sub-text);">Monitoring kesehatan dan jadwal imunisasi ternak.</p>
         </div>
         <div class="d-flex flex-column flex-sm-row align-items-stretch gap-2 w-100" style="max-width: 400px;">
-            <select id="kambingSelect" class="form-select form-select-sm border-0 shadow-sm w-100" style="background-color: var(--card-white); color: var(--heading-text); border-radius: 10px; height: 38px;">
+            <select id="kambingSelect" class="ts-select-custom w-100">
                 <option value="" disabled selected>Pilih Kambing...</option>
             </select>
             <button class="btn btn-nature btn-nature-primary btn-sm shadow-sm w-100 text-nowrap" style="height: 38px;" data-bs-toggle="modal" data-bs-target="#modalInputBerat">+ INPUT BERAT</button>
@@ -127,7 +172,7 @@
                     <div class="px-3 py-1 rounded-pill text-nowrap align-self-start align-self-sm-auto" style="border: 1px solid var(--border-divider); background-color: var(--page-bg);">
                         <span class="fw-bold" style="font-size: 10px; color: var(--sub-text);">BERAT BADAN (KG)</span>
                     </div>
-                </div>
+                    </div>
                 <div class="card-body p-4">
                     <div class="chart-wrapper" style="position: relative; height: 350px;">
                         <canvas id="medisChart"></canvas>
@@ -192,8 +237,8 @@
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label small fw-bold">PILIH KAMBING</label>
-                        <select name="id_kambing" class="form-select" id="modalKambingSelect" style="background-color: var(--input-bg);" required>
-                            <option value="semua">🐑 SEMUA KAMBING (Keseluruhan)</option>
+                        <select name="id_kambing" class="ts-select-custom w-100" id="modalKambingSelect" required>
+                            <option value="semua">SEMUA KAMBING (Keseluruhan)</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -339,32 +384,61 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const res = await apiFetch('/api/kambing');
             const list = res.data || [];
-            kambingSelect.innerHTML = '<option disabled>Pilih Kambing...</option>';
             
+            let tsMain = kambingSelect.tomselect;
+            if (!tsMain) {
+                tsMain = new TomSelect(kambingSelect, {
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: 'text',
+                    placeholder: 'Pilih Kambing...',
+                    sortField: { field: "text", direction: "asc" }
+                });
+            }
+
             const modalSelect = document.getElementById('modalKambingSelect');
-            if(modalSelect) modalSelect.innerHTML = '<option value="semua">🐑 SEMUA KAMBING (Keseluruhan)</option>';
+            let tsModal = modalSelect ? modalSelect.tomselect : null;
+            if (modalSelect && !tsModal) {
+                tsModal = new TomSelect(modalSelect, {
+                    valueField: 'value',
+                    labelField: 'text',
+                    searchField: 'text',
+                    placeholder: 'Pilih Kambing...',
+                    sortField: { field: "text", direction: "asc" }
+                });
+            }
+
+            tsMain.clearOptions();
+            if (tsModal) tsModal.clearOptions();
 
             if (!list.length) {
-                kambingSelect.innerHTML = '<option disabled selected>Tidak ada data</option>';
+                tsMain.addOption({ value: '', text: 'Tidak ada data' });
                 return updateChart([]);
             }
-            list.forEach(k => {
-                const opt = document.createElement('option');
-                opt.value = k.id_kambing;
-                opt.text = k.nama || `Kambing #${k.id_kambing}`;
-                kambingSelect.appendChild(opt);
 
-                if(modalSelect) {
-                    const opt2 = document.createElement('option');
-                    opt2.value = k.id_kambing;
-                    opt2.text = k.nama || `Kambing #${k.id_kambing}`;
-                    modalSelect.appendChild(opt2);
+            if (tsModal) {
+                tsModal.addOption({ value: 'semua', text: '🐑 SEMUA KAMBING (Keseluruhan)' });
+            }
+
+            list.forEach(k => {
+                const labelNama = k.nama || `Kambing #${k.id_kambing}`;
+                const dataOpsi = { value: String(k.id_kambing), text: labelNama };
+                
+                tsMain.addOption(dataOpsi);
+                if (tsModal) {
+                    tsModal.addOption(dataOpsi);
                 }
             });
-            kambingSelect.value = list[0].id_kambing;
+
+            tsMain.setValue(String(list[0].id_kambing));
+            if (tsModal) tsModal.setValue('semua');
+            
             loadData(list[0].id_kambing);
             loadJadwal(list[0].id_kambing); 
-        } catch(e) {}
+
+        } catch(e) {
+            console.error("Gagal load kambing:", e);
+        }
     };
 
     const handleForm = (id, url, method, cb) => {
@@ -420,7 +494,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     };
 
-    loadKambing();
+    loadKambing().then(() => {
+        if (kambingSelect.value) {
+            loadData(kambingSelect.value);
+            loadJadwal(kambingSelect.value);
+        }
+    });
 });
 </script>
 @endsection

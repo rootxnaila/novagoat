@@ -1,58 +1,119 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# NovaGoat - Livestock Monitoring System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap)
+![MariaDB](https://img.shields.io/badge/MariaDB-10.x-003545?style=for-the-badge&logo=mariadb)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript)
 
-## About Laravel
+**NovaGoat** is a modern, web-based livestock management and monitoring platform designed to digitize daily operations at Pak Tarno's Goat Farm. This project was developed to fulfill the Final Project requirements for the Web Programming Course, Informatics Engineering Study Program (Class of '25), Universitas Negeri Malang.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The system utilizes a decoupled architecture, separating the Back-End RESTful API from the Front-End Responsive UI. It is built to resolve manual record-keeping issues, irregular medical scheduling, and to systematically monitor the daily performance of farm workers.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Core Features
 
-## Learning Laravel
+### 1. Real-Time Analytics Dashboard
+* **Chart.js Visualization:** Interactive charts (Doughnut and Pie Charts) for real-time monitoring of breed distribution and health status.
+* **Quick Insights:** Instant metrics overview including total population, sick livestock, and today's medical agenda.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 2. Digital Livestock Catalog
+* **Direct Camera Integration:** Enables field workers to capture livestock photos directly via smartphone cameras, bypassing manual file uploads.
+* **Structured Identity Management:** Comprehensive data tracking (ID, breed, gender, health status) via dynamic data tables.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. Medical Log & Weight Tracking
+* **Weight Trend Analysis:** Line Chart visualizations to monitor periodic weight development and prevent livestock stunting.
+* **Immunization Scheduling:** Medical action scheduling with partial update support for status modifications.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 4. Role-Based Access Control (RBAC) & API Security
+* **Laravel Sanctum Authentication:** API route protection utilizing stateless bearer tokens.
+* **Dynamic UI Restriction:** Automatically restricts and hides administrative interfaces (Main Dashboard & Employee Management) for farm worker roles.
 
-## Agentic Development
+### 5. Mobile-First & Responsive Layout
+* **Bootstrap 5 Optimization:** Fully responsive interface ensuring seamless operation across field devices (smartphones) and administrative desktops.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+---
 
+## Technology Stack
+
+| Category | Technology |
+| :--- | :--- |
+| **Back-End Framework** | Laravel 10.x (PHP 8.x) |
+| **Database Engine** | MariaDB / MySQL |
+| **API Authentication** | Laravel Sanctum (Bearer Token) |
+| **Front-End Engine** | Laravel Blade Engine & Vanilla JavaScript (Fetch API) |
+| **CSS Framework** | Bootstrap 5.3 + Bootstrap Icons |
+| **Chart Library** | Chart.js |
+| **Asset Bundler** | Vite |
+| **Design Tools** | Figma |
+
+---
+
+## System Architecture & Database Design
+
+* **Master Models:** `User.php` (Admin & Worker Accounts) and `Kambing.php` (Livestock Master Data with Soft Deletes implementation).
+* **Transaction Models:** `LogBerat.php` (Weight History) and `JadwalMedis.php` (Vaccination History) utilizing `hasMany` (One-to-Many) relationships.
+* **API Entry Point:** Managed in `routes/api.php` and fully protected by the `auth:sanctum` middleware.
+* **Controller Logic:** Implements strict validation using `$request->validate()` and the `sometimes` parameter for efficient partial data updates (PATCH requests).
+
+---
+
+## Core Development Team
+
+This project was successfully developed through the collaborative efforts of the Informatics Engineering Team, Universitas Negeri Malang (Class of 2025):
+
+| Developer | Role | Core Responsibilities |
+| :--- | :--- | :--- |
+| **[Naila Rizki](https://github.com/rootxnaila)** | **Lead Back-End Developer & Database Engineer** | Designed MariaDB relational schemas, wrote migrations & seeders, built API Controller logic, secured routes via Sanctum Middleware, handled comprehensive Request Validation, and coordinated full-stack integration. |
+| **[Nova Indriansyah](https://github.com/Pallnova07)** | **Front-End Developer & UI Designer** | Designed high-fidelity prototypes in Figma, implemented responsive layouts using Bootstrap 5, and integrated Chart.js for dynamic analytics visualization. |
+| **[Naufal Hilman](https://github.com/zharx07-lgtm)** | **Front-End Developer & UI Interaction** | Built UI interactions, handled DOM manipulation logic via Fetch API, managed authentication state via `localStorage`, and optimized UX for form validation and error handling. |
+
+---
+
+## Installation & Deployment Guide
+
+### 1. Prerequisites
+* PHP `>= 8.1`
+* Composer
+* MySQL/MariaDB Server (e.g., XAMPP / Laragon)
+* Node.js & NPM
+
+### 2. Clone Repository
 ```bash
-composer require laravel/boost --dev
+git clone [https://github.com/rootxnaila/novagoat.git](https://github.com/rootxnaila/novagoat.git)
+cd novagoat
+3. Install PHP Dependencies
+Bash
+composer install
+4. Environment Configuration
+Copy the .env.example file and rename it to .env:
 
-php artisan boost:install
-```
+Bash
+cp .env.example .env
+Configure your database credentials in the .env file:
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Cuplikan kode
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=novagoat_db
+DB_USERNAME=root
+DB_PASSWORD=
+5. Generate Application Key
+Bash
+php artisan key:generate
+6. Database Migration & Seeding
+Run the following command to build the tables and seed the initial dummy/admin data:
 
-## Contributing
+Bash
+php artisan migrate --seed
+7. Compile Frontend Assets
+Bash
+npm install
+npm run dev
+8. Run Local Development Server
+Open a new terminal tab and start the Laravel server:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Bash
+php artisan serve
+Access the application in your browser at: http://127.0.0.1:8000

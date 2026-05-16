@@ -1,36 +1,38 @@
-# NovaGoat - Livestock Monitoring System
+# 🐐 Sistem Monitoring Peternakan Pak Tarno
 
 ![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap)
 ![MariaDB](https://img.shields.io/badge/MariaDB-10.x-003545?style=for-the-badge&logo=mariadb)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript)
 
-**NovaGoat** is a modern, web-based livestock management and monitoring platform designed to digitize daily operations at Pak Tarno's Goat Farm. This project was developed to fulfill the Final Project requirements for the Web Programming Course, Informatics Engineering Study Program (Class of '25), Universitas Negeri Malang.
+**Sistem Monitoring Peternakan Pak Tarno** is a modern, web-based livestock management and monitoring platform. Specifically engineered to support **goat fattening programs (program penggemukan kambing)**, this system digitizes daily farm operations to ensure optimal livestock growth and health. 
 
-The system utilizes a decoupled architecture, separating the Back-End RESTful API from the Front-End Responsive UI. It is built to resolve manual record-keeping issues, irregular medical scheduling, and to systematically monitor the daily performance of farm workers.
+This project was developed to fulfill the Final Project requirements for the Web Programming Course, Informatics Engineering Study Program (Class of '25), Universitas Negeri Malang. The system utilizes a decoupled architecture, separating the Back-End RESTful API from the Front-End Responsive UI, providing a seamless solution for manual record-keeping issues, weight monitoring for fattening targets, and irregular medical scheduling.
 
 ---
 
 ## Core Features
 
-### 1. Real-Time Analytics Dashboard
+### 1. Fattening & Weight Tracking Logic
+* **Weight Trend Analysis:** Interactive Line Chart visualizations to monitor periodic weight development, ensuring the goat fattening targets are met and preventing livestock stunting.
+* **Growth Analytics:** Automated calculations of average weight and the latest recorded mass for individual livestock.
+
+### 2. Real-Time Analytics Dashboard
 * **Chart.js Visualization:** Interactive charts (Doughnut and Pie Charts) for real-time monitoring of breed distribution and health status.
 * **Quick Insights:** Instant metrics overview including total population, sick livestock, and today's medical agenda.
 
-### 2. Digital Livestock Catalog
+### 3. Digital Livestock Catalog
 * **Direct Camera Integration:** Enables field workers to capture livestock photos directly via smartphone cameras, bypassing manual file uploads.
 * **Structured Identity Management:** Comprehensive data tracking (ID, breed, gender, health status) via dynamic data tables.
 
-### 3. Medical Log & Weight Tracking
-* **Weight Trend Analysis:** Line Chart visualizations to monitor periodic weight development and prevent livestock stunting.
+### 4. Medical Log & Vaccination Schedule
 * **Immunization Scheduling:** Medical action scheduling with partial update support for status modifications.
+* **Health Monitoring:** Proactive tracking to maintain the health quality of the fattened goats.
 
-### 4. Role-Based Access Control (RBAC) & API Security
+### 5. Role-Based Access Control (RBAC) & Mobile-First UI
 * **Laravel Sanctum Authentication:** API route protection utilizing stateless bearer tokens.
-* **Dynamic UI Restriction:** Automatically restricts and hides administrative interfaces (Main Dashboard & Employee Management) for farm worker roles.
-
-### 5. Mobile-First & Responsive Layout
-* **Bootstrap 5 Optimization:** Fully responsive interface ensuring seamless operation across field devices (smartphones) and administrative desktops.
+* **Dynamic UI Restriction:** Automatically restricts administrative interfaces for farm worker roles.
+* **Bootstrap 5 Optimization:** Fully responsive interface ensuring seamless operation across field devices (smartphones) for Anak Kandang.
 
 ---
 
@@ -58,7 +60,7 @@ The system utilizes a decoupled architecture, separating the Back-End RESTful AP
 
 ---
 
-## Core Development Team
+## Development Team
 
 This project was successfully developed through the collaborative efforts of the Informatics Engineering Team, Universitas Negeri Malang (Class of 2025):
 
@@ -82,38 +84,48 @@ This project was successfully developed through the collaborative efforts of the
 ```bash
 git clone [https://github.com/rootxnaila/novagoat.git](https://github.com/rootxnaila/novagoat.git)
 cd novagoat
-3. Install PHP Dependencies
-Bash
+```
+
+### 3. Install PHP Dependencies
+```bash
 composer install
-4. Environment Configuration
-Copy the .env.example file and rename it to .env:
+```
 
-Bash
+### 4. Environment Configuration
+Copy the `.env.example` file and rename it to `.env`:
+```bash
 cp .env.example .env
-Configure your database credentials in the .env file:
-
-Cuplikan kode
+```
+Configure your database credentials in the `.env` file:
+```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=novagoat_db
 DB_USERNAME=root
 DB_PASSWORD=
-5. Generate Application Key
-Bash
-php artisan key:generate
-6. Database Migration & Seeding
-Run the following command to build the tables and seed the initial dummy/admin data:
+```
 
-Bash
+### 5. Generate Application Key
+```bash
+php artisan key:generate
+```
+
+### 6. Database Migration & Seeding
+Run the following command to build the tables and seed the initial dummy/admin data:
+```bash
 php artisan migrate --seed
-7. Compile Frontend Assets
-Bash
+```
+
+### 7. Compile Frontend Assets
+```bash
 npm install
 npm run dev
-8. Run Local Development Server
-Open a new terminal tab and start the Laravel server:
+```
 
-Bash
+### 8. Run Local Development Server
+Open a new terminal tab and start the Laravel server:
+```bash
 php artisan serve
-Access the application in your browser at: http://127.0.0.1:8000
+```
+Access the application in your browser at: **`http://127.0.0.1:8000`**

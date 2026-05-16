@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,10 +19,9 @@
         
         /* Jarak atas diubah karena navbar baru tidak melayang (fixed) lagi */
         .main-content-padded { padding-top: 110px; padding-bottom: 50px; min-height: 100vh; }
-        .main-content-full { height: 100vh; overflow: hidden; }
-        
-        body.login-page { overflow: hidden; background: #000; color: white; }
-    </style>
+        .main-content-full { min-height: 100vh; overflow-y: auto; overflow-x: hidden; }        
+        body.login-page { overflow-y: auto; overflow-x: hidden; background: #000; color: white; }
+            </style>
 </head>
 <body class="{{ Request::is('login*') || Request::is('register*') ? 'login-page' : '' }}">
 
@@ -35,6 +35,18 @@
     </main>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.searchable-select').forEach((el) => {
+                new TomSelect(el, {
+                    create: false,
+                    sortField: { field: "text", direction: "asc" }
+                });
+            });
+        });
+    </script>
     
     <script>
         // Logika Keamanan: Proteksi Halaman & Cek Token

@@ -1,4 +1,4 @@
-# 🐐 Sistem Monitoring Peternakan Pak Tarno
+# Sistem Monitoring Peternakan Pak Tarno
 
 ![Laravel](https://img.shields.io/badge/Laravel-10.x-FF2D20?style=for-the-badge&logo=laravel)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=for-the-badge&logo=bootstrap)
